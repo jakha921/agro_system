@@ -15,8 +15,10 @@ RUN pip install -r requirements.txt
 # copy all files to /app
 COPY . .
 
+RUN chmod a+x *.sh
+
 # run the alembic migrations
 RUN alembic upgrade head
 
 # run app
-RUN gunicorn scr.main:app --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000
+CMD gunicorn src.main:app --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000
