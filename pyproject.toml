@@ -12,6 +12,8 @@ sqlalchemy = "^2.0.16"
 alembic = "^1.11.1"
 psycopg2 = "^2.9.6"
 asyncpg = "^0.27.0"
+gunicorn = "^20.1.0"
+flower = "^1.2.0"
 
 
 [build-system]
