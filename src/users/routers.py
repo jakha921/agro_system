@@ -1,0 +1,42 @@
+from fastapi import APIRouter, Depends
+from typing import Optional
+
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.database import get_async_session
+from src.models import User
+from src.users import schemas
+from src.users.services import UserService
+
+router = APIRouter(
+    prefix="/users",
+    tags=["users"],
+    # responses={404: {"description": "Not found"}},
+)
+users_service = UserService(User)
+
+
+@router.get("/")
+async def get_users(session: AsyncSession = Depends(get_async_session)):
+    return await users_service.get_entities(session)
+
+
+@router.post("/")
+async def create_user(user: schemas.UserCreate, session: AsyncSession = Depends(get_async_session)):
+    return await users_service.create_entity(user, session)
+
+
+@router.get("/{user_id}")
+async def get_user(user_id: int, session: AsyncSession = Depends(get_async_session)):
+    return await users_service.get_entity(user_id, session)
+
+
+@router.patch("/{user_id}")
+async def update_user(user_id: int, user: schemas.UserUpdate,
+                      session: AsyncSession = Depends(get_async_session)):
+    return await users_service.update_entity(user_id, user, session)
+
+
+@router.delete("/{user_id}")
+async def delete_user(user_id: int, session: AsyncSession = Depends(get_async_session)):
+    return await users_service.delete_entity(user_id, session)
