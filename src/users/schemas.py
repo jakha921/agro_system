@@ -17,6 +17,7 @@ class UserCreate(BaseModel):
     address: str = Field(None, max_length=255)
     gender_id: int = Field(..., gt=0)
     status_id: int = Field(..., gt=0)
+    district_id: int = Field(..., gt=0)
     device_type: DeviceType = Field(DeviceType.android)
 
     class Config:
@@ -29,7 +30,8 @@ class UserCreate(BaseModel):
                 "age": 20,
                 "address": "Tashkent",
                 "gender_id": 1,
-                "status_id": 1
+                "status_id": 1,
+                "district_id": 1
             }
         }
 

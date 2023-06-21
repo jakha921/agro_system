@@ -30,6 +30,7 @@ class Region(Base):
     country_id = Column(Integer, ForeignKey('countries.id'))
 
     country = relationship("Country", back_populates="regions")
+
     cities = relationship("City", back_populates="region")
 
     def __repr__(self):
@@ -46,6 +47,7 @@ class City(Base):
     region_id = Column(Integer, ForeignKey('regions.id'))
 
     region = relationship("Region", back_populates="cities")
+
     districts = relationship("District", back_populates="city")
 
     def __repr__(self):
@@ -62,7 +64,9 @@ class District(Base):
     city_id = Column(Integer, ForeignKey('cities.id'))
 
     city = relationship("City", back_populates="districts")
-    department = relationship("Department", back_populates="districts")
+
+    department = relationship("Department", back_populates="district")
+    users = relationship("User", back_populates="district")
 
     def __repr__(self):
         return f'<District {self.name_ru}>'
@@ -77,7 +81,7 @@ class Department(Base):
     address = Column(String(255))
     district_id = Column(Integer, ForeignKey('districts.id'))
 
-    districts = relationship("District", back_populates="department")
+    district = relationship("District", back_populates="department")
 
     def __repr__(self):
         return f'<Department {self.name_ru}>'
@@ -122,18 +126,22 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     username = Column(String(50), nullable=False)
     phone_number = Column(String(50), unique=True, nullable=False)
-    password = Column(String(50), nullable=False)
+    password = Column(String(255), nullable=False)
     age = Column(Integer, nullable=False)
-    address = Column(String(50), nullable=True)
-    registration_at = Column(DateTime, default=datetime.utcnow)
-    last_login_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    address = Column(String(255), nullable=True)
     gender_id = Column(Integer, ForeignKey('genders.id'))
     status_id = Column(Integer, ForeignKey('statuses.id'))
+    district_id = Column(Integer, ForeignKey('districts.id'))
     device_type = Column(Enum('ios', 'android', name="Device"), default='android')
+    registration_at = Column(DateTime, default=datetime.utcnow)
+    last_login_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    deleted_at = Column(DateTime, nullable=True)
 
     gender = relationship("Gender", back_populates="users")
     status = relationship("Status", back_populates="users")
-    complains = relationship("Complain", back_populates="user")
+    district = relationship("District", back_populates="users")
+
+    complain = relationship("Complain", back_populates="users")
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -182,7 +190,7 @@ class ComplainStatus(Base):
     name_en = Column(String(50))
     name_uz = Column(String(50))
 
-    complains = relationship("Complain", back_populates="complain_status")
+    complain = relationship("Complain", back_populates="complain_status")
 
     def __repr__(self):
         return f'<ComplainStatus {self.name_ru}>'
@@ -202,8 +210,8 @@ class Complain(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     deleted_at = Column(DateTime, nullable=True)
 
-    user = relationship("User", back_populates="complains")
-    complain_status = relationship("ComplainStatus", back_populates="complains")
+    users = relationship("User", back_populates="complain")
+    complain_status = relationship("ComplainStatus", back_populates="complain")
 
     def __repr__(self):
         return f'<Complain {self.title}>'
@@ -229,8 +237,11 @@ class Admin(Base):
     id = Column(Integer, primary_key=True)
     username = Column(String(50), nullable=False)
     email = Column(String(50), nullable=False, unique=True)
-    password = Column(String(50), nullable=False)
+    password = Column(String(255), nullable=False)
     role_id = Column(Integer, ForeignKey('roles.id'))
+    registration_at = Column(DateTime, default=datetime.utcnow)
+    last_login_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    deleted_at = Column(DateTime, nullable=True)
 
     role = relationship("Role", back_populates="admins")
 

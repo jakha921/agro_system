@@ -16,6 +16,9 @@ from src.departments.routers import router as department_routes
 from src.categories.routers import router as categories_routes
 from src.rights.routers import router as rights_routes
 from src.users.routers import router as users_routes
+from src.complains.routers import router as complains_routes
+from src.admins.routers import router as admins_routes
+from src.auth.routers import router as auth_routes
 
 app = FastAPI(
     title="Agriculture API",
@@ -23,6 +26,7 @@ app = FastAPI(
     version="0.0.1",
 )
 
+# CORS settings
 origins = [
     "*"
     # "http://localhost.tiangolo.com",
@@ -31,6 +35,7 @@ origins = [
     # "http://localhost:8080",
 ]
 
+# CORS settings
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -54,15 +59,24 @@ async def root():
     return {"message": "Hello World"}
 
 
-app.include_router(roles_routes)
-app.include_router(countries_routes)
-app.include_router(regions_routes)
-app.include_router(cities_routes)
-app.include_router(districts_routes)
-app.include_router(department_routes)
-app.include_router(genders_routes)
-app.include_router(statuses_routes)
-app.include_router(users_routes)
-app.include_router(complain_statuses_routes)
-app.include_router(categories_routes)
-app.include_router(rights_routes)
+routers = [
+    # auth_routes,
+    countries_routes,
+    regions_routes,
+    cities_routes,
+    districts_routes,
+    department_routes,
+    genders_routes,
+    statuses_routes,
+    users_routes,
+    categories_routes,
+    rights_routes,
+    complain_statuses_routes,
+    complains_routes,
+    roles_routes,
+    admins_routes,
+]
+
+# include routers
+for router in routers:
+    app.include_router(router)
