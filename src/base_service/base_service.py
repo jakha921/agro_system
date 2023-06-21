@@ -64,8 +64,16 @@ class BaseService(ABC):
         Get entity by id
         """
         try:
-            query = select(self.model).where(self.model.id == entity_id)
+            query = select(self.model)
+
+            # if in keys of model exists {some_name}_id then joined load model name for get module.
+            if self.get_addition_entity_name():
+                query = query.options(joinedload(self.get_addition_entity_name()))
+
+            query = query.where(self.model.id == entity_id)
+            print('query', query)
             entity = (await session.execute(query)).scalars().first()
+
             if entity is None:
                 raise HTTPException(status_code=404, detail=f"{self.get_entity_name()} not found")
             return {
