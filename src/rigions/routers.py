@@ -17,8 +17,9 @@ region_service = RegionService(Region)
 
 
 @router.get("/")
-async def get_regions(session: AsyncSession = Depends(get_async_session)):
-    return await region_service.get_entities(session)
+async def get_regions(page: int = None, per_page: int = None, search: str = None,
+                      session: AsyncSession = Depends(get_async_session)):
+    return await region_service.get_entities(session, page, per_page, search)
 
 
 @router.post("/")

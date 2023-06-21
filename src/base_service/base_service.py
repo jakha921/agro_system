@@ -1,8 +1,11 @@
 from abc import ABC, abstractmethod
+from typing import Optional
+
 from sqlalchemy.future import select
 from sqlalchemy import func, or_
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 
 class BaseService(ABC):
@@ -13,16 +16,41 @@ class BaseService(ABC):
     def get_entity_name(self):
         pass
 
-    async def get_entities(self, session: AsyncSession):
+    # addition model for get all entities by {name}_id in model
+    def get_addition_entity_name(self):
+        return None
+
+    async def get_entities(self, session: AsyncSession, offset: int = None, limit: int = None, search: str = None):
         """
         Get all entities
         """
         try:
             query = select(self.model)
+
+            length_query = select(func.count(self.model.id))
+
+            # if in keys of model exists {some_name}_id then joined load model name for get module.
+            if self.get_addition_entity_name():
+                query = query.options(joinedload(self.get_addition_entity_name()))
+
+            if search:
+                query = query.where(
+                    or_(
+                        func.lower(self.model.name_ru).contains(search.lower()),
+                        func.lower(self.model.name_en).contains(search.lower()),
+                        func.lower(self.model.name_uz).contains(search.lower())
+                    )
+                )
+            if offset and limit:
+                query = query.offset((offset - 1) * limit).limit(limit)
+
             return {
                 "status": "success",
                 "detail": f"{self.get_entity_name()} retrieved successfully",
-                "data": (await session.execute(query)).scalars().all()
+                "data": {
+                    "total": (await session.execute(length_query)).scalar(),
+                    "items": (await session.execute(query)).scalars().all()
+                }
             }
         except Exception as e:
             raise HTTPException(status_code=400, detail={

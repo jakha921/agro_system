@@ -17,8 +17,9 @@ department_service = DepartmentService(Department)
 
 
 @router.get("/")
-async def get_departments(session: AsyncSession = Depends(get_async_session)):
-    return await department_service.get_entities(session)
+async def get_departments(page: int = None, per_page: int = None, search: str = None,
+                          session: AsyncSession = Depends(get_async_session)):
+    return await department_service.get_entities(session, page, per_page, search)
 
 
 @router.post("/")

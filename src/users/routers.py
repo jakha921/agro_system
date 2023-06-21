@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends
-from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -17,8 +16,9 @@ users_service = UserService(User)
 
 
 @router.get("/")
-async def get_users(session: AsyncSession = Depends(get_async_session)):
-    return await users_service.get_entities(session)
+async def get_users(page: int = None, limit: int = None, search: str = None,
+                    session: AsyncSession = Depends(get_async_session)):
+    return await users_service.get_entities(session, page, limit, search)
 
 
 @router.post("/")

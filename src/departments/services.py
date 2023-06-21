@@ -1,3 +1,7 @@
+from sqlalchemy import func, or_
+from sqlalchemy.orm import joinedload
+
+from src import models
 from src.base_service.base_service import BaseService
 
 from sqlalchemy.future import select
@@ -8,6 +12,47 @@ from sqlalchemy.ext.asyncio import AsyncSession
 class DepartmentService(BaseService):
     def get_entity_name(self):
         return "Department"
+
+    async def get_entities(self, session: AsyncSession, offset: int = None, limit: int = None, search: str = None):
+        """
+        Get all entities
+        """
+        try:
+            query = select(self.model)
+
+            length_query = select(func.count(self.model.id))
+
+            # join district, city, region, country
+            query = query.options(
+                joinedload(self.model.district).joinedload(models.District.city).joinedload(models.City.region).joinedload(
+                    models.Region.country)
+            )
+
+            if search:
+                query = query.where(
+                    or_(
+                        func.lower(self.model.title).contains(search.lower()),
+                        func.lower(self.model.phone).contains(search.lower()),
+                        func.lower(self.model.address).contains(search.lower())
+                    )
+                )
+            if offset and limit:
+                query = query.offset((offset - 1) * limit).limit(limit)
+
+            return {
+                "status": "success",
+                "detail": f"{self.get_entity_name()} retrieved successfully",
+                "data": {
+                    "total": (await session.execute(length_query)).scalar(),
+                    "items": (await session.execute(query)).scalars().all()
+                }
+            }
+        except Exception as e:
+            raise HTTPException(status_code=400, detail={
+                "status": "error",
+                "detail": f"{self.get_entity_name()} not retrieved",
+                "data": str(e) if str(e) else None
+            })
 
     async def get_entity_by_name(self, entity_name: str, session: AsyncSession):
         """

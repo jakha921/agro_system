@@ -17,8 +17,9 @@ categories_service = CategoryService(Category)
 
 
 @router.get("/")
-async def get_categories(session: AsyncSession = Depends(get_async_session)):
-    return await categories_service.get_entities(session)
+async def get_categories(page: int = None, limit: int = None, search: str = None,
+                         session: AsyncSession = Depends(get_async_session)):
+    return await categories_service.get_entities(session, page, limit, search)
 
 
 @router.post("/")

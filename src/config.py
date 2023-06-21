@@ -19,4 +19,13 @@ class Database:
         return self.async_db_uri
 
 
+class JWT:
+    def __init__(self):
+        self.SECRET_KEY = os.getenv("SECRET_KEY")
+        self.algorithm = "HS256"
+        self.access_token_expire = 60 * 24  # 1 day
+        self.refresh_token_expire = 60 * 24 * 7  # 7 days
+
+
 database = Database()
+jwt_config = JWT()

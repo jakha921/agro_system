@@ -17,8 +17,9 @@ city_service = CityService(City)
 
 
 @router.get("/")
-async def get_cities(session: AsyncSession = Depends(get_async_session)):
-    return await city_service.get_entities(session)
+async def get_cities(page: int = None, per_page: int = None, search: str = None,
+                     session: AsyncSession = Depends(get_async_session)):
+    return await city_service.get_entities(session, page, per_page, search)
 
 
 @router.post("/")

@@ -17,8 +17,9 @@ rights_service = RightService(Right)
 
 
 @router.get("/")
-async def get_rights(session: AsyncSession = Depends(get_async_session)):
-    return await rights_service.get_entities(session)
+async def get_rights(page: int = None, limit: int = None, search: str = None,
+                     session: AsyncSession = Depends(get_async_session)):
+    return await rights_service.get_entities(session, page, limit, search)
 
 
 @router.post("/")

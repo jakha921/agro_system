@@ -17,8 +17,9 @@ district_service = DistrictService(District)
 
 
 @router.get("/")
-async def get_districts(session: AsyncSession = Depends(get_async_session)):
-    return await district_service.get_entities(session)
+async def get_districts(page: int = None, per_page: int = None, search: str = None,
+                        session: AsyncSession = Depends(get_async_session)):
+    return await district_service.get_entities(session, page, per_page, search)
 
 
 @router.post("/")

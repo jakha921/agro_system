@@ -2,6 +2,8 @@ from typing import Optional
 from fastapi import HTTPException
 from sqlalchemy import insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload, selectinload
+
 from src import models
 from src.base_service.base_service import BaseService
 
@@ -75,5 +77,32 @@ class CountryService(BaseService):
             raise HTTPException(status_code=400, detail={
                 "status": "error",
                 "detail": "Country not retrieved",
+                "data": str(e) if str(e) else None
+            })
+
+    async def get_countries_by_obj(self, session: AsyncSession):
+        """
+        Get all countries
+        """
+        try:
+            # select all countries left join regions left join cities left join districts
+            query = select(models.Country).options(
+                selectinload(models.Country.regions).options(
+                    selectinload(models.Region.cities).options(
+                        selectinload(models.City.districts)
+                    )
+                )
+            )
+
+            countries = (await session.execute(query)).scalars().all()
+            return {
+                "status": "success",
+                "detail": "Countries retrieved successfully",
+                "data": countries
+            }
+        except Exception as e:
+            raise HTTPException(status_code=400, detail={
+                "status": "error",
+                "detail": "Countries not retrieved",
                 "data": str(e) if str(e) else None
             })

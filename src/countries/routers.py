@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends
-from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -17,9 +16,15 @@ router = APIRouter(
 country_service = CountryService(Country)
 
 
+@router.get("/list")
+async def get_countries_list(session: AsyncSession = Depends(get_async_session)):
+    return await country_service.get_countries_by_obj(session)
+
+
 @router.get("/")
-async def get_countries(session: AsyncSession = Depends(get_async_session)):
-    return await country_service.get_entities(session)
+async def get_countries(page: int = None, per_page: int = None, search: str = None,
+                        session: AsyncSession = Depends(get_async_session)):
+    return await country_service.get_entities(session, page, per_page, search)
 
 
 @router.post("/")

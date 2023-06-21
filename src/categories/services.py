@@ -11,6 +11,48 @@ class CategoryService(BaseService):
     def get_entity_name(self):
         return "Category"
 
+    async def get_entities(self, session: AsyncSession, offset: int = None, limit: int = None, search: str = None):
+        """
+        Get all entities
+        """
+        try:
+            query = select(self.model)
+
+            length_query = select(func.count(self.model.id))
+
+            # if in keys of model exists {some_name}_id then joined load model name for get module.
+            if self.get_addition_entity_name():
+                query = query.options(joinedload(self.get_addition_entity_name()))
+
+            if search:
+                query = query.where(
+                    or_(
+                        func.lower(self.model.title_ru).contains(search.lower()),
+                        func.lower(self.model.title_en).contains(search.lower()),
+                        func.lower(self.model.title_uz).contains(search.lower()),
+                        func.lower(self.model.short_description_ru).contains(search.lower()),
+                        func.lower(self.model.short_description_en).contains(search.lower()),
+                        func.lower(self.model.short_description_uz).contains(search.lower())
+                    )
+                )
+            if offset and limit:
+                query = query.offset((offset - 1) * limit).limit(limit)
+
+            return {
+                "status": "success",
+                "detail": f"{self.get_entity_name()} retrieved successfully",
+                "data": {
+                    "total": (await session.execute(length_query)).scalar(),
+                    "items": (await session.execute(query)).scalars().all()
+                }
+            }
+        except Exception as e:
+            raise HTTPException(status_code=400, detail={
+                "status": "error",
+                "detail": f"{self.get_entity_name()} not retrieved",
+                "data": str(e) if str(e) else None
+            })
+
     async def get_entity_by_name(self, entity_name: str, session: AsyncSession):
         """
         Get entity by name
