@@ -5,8 +5,8 @@ from pydantic import BaseModel, Field
 
 class DepartmentCreate(BaseModel):
     title: str
-    phone: str = Field(None, max_length=255, regex=r'^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$')
-    address: str = Field(None, max_length=50)
+    phone: str = Field(None, max_length=255)
+    address: str = Field(None, max_length=255)
     district_id: int
 
     class Config:
@@ -23,7 +23,6 @@ class DepartmentCreate(BaseModel):
 
 class DepartmentUpdate(DepartmentCreate):
     title: Optional[str]
-    phone: Optional[str] = Field(None, max_length=50,
-                                 regex=r'^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$')
-    address: Optional[str] = Field(None, max_length=50)
+    phone: Optional[str] = Field(None, max_length=255)
+    address: Optional[str] = Field(None, max_length=255)
     district_id: Optional[int]
