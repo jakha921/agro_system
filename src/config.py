@@ -23,8 +23,8 @@ class JWT:
     def __init__(self):
         self.SECRET_KEY = os.getenv("SECRET_KEY")
         self.algorithm = "HS256"
-        self.access_token_expire = 60 * 24  # 1 day
-        self.refresh_token_expire = 60 * 24 * 7  # 7 days
+        self.access_token_expire = 60 * 24 * 30  # 30 days
+        self.refresh_token_expire = 60 * 24 * 30 * 3  # 3 months
 
 
 database = Database()
