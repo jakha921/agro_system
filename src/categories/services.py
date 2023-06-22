@@ -22,7 +22,7 @@ class CategoryService(BaseService):
 
             # if in keys of model exists {some_name}_id then joined load model name for get module.
             if self.get_addition_entity_name():
-                query = query.options(joinedload(self.get_addition_entity_name()))
+                query = query.options(self.get_addition_entity_name())
 
             if search:
                 query = query.where(

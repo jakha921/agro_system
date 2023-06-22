@@ -2,7 +2,7 @@ import datetime
 
 from sqlalchemy.orm import defer, joinedload
 
-from src.auth.hashing.hash import hash_password
+from src.auth.hashing import hash_password
 from src.base_service.base_service import BaseService
 
 from sqlalchemy import or_, func

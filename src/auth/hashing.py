@@ -4,9 +4,7 @@ import os
 
 def hash_password(password, salt):
     # salt convert to bytes
-    salt, password = salt.encode('utf-8'), password.encode('utf-8')
-    salted_password = salt + password
-
+    salted_password = salt.encode('utf-8') + password.encode('utf-8')
     return hashlib.sha256(salted_password).hexdigest()
 
 
@@ -15,7 +13,6 @@ def verify_password(password, salt, hashed_password):
     rehashed_password = hashlib.sha256(salted_password).hexdigest()
 
     return rehashed_password == hashed_password
-
 
 # # Example usage
 # password = "myPassword123"

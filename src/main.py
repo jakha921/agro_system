@@ -60,7 +60,7 @@ async def root():
 
 
 routers = [
-    # auth_routes,
+    auth_routes,
     countries_routes,
     regions_routes,
     cities_routes,

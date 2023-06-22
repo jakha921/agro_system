@@ -1,3 +1,5 @@
+from sqlalchemy.orm import joinedload
+
 from src.base_service.base_service import BaseService
 
 
@@ -6,4 +8,4 @@ class RegionService(BaseService):
         return "Region"
 
     def get_addition_entity_name(self):
-        return self.model.country
+        return joinedload(self.model.country)

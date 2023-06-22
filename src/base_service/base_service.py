@@ -31,7 +31,7 @@ class BaseService(ABC):
 
             # if in keys of model exists {some_name}_id then joined load model name for get module.
             if self.get_addition_entity_name():
-                query = query.options(joinedload(self.get_addition_entity_name()))
+                query = query.options(self.get_addition_entity_name())
 
             if search:
                 query = query.where(
@@ -68,10 +68,9 @@ class BaseService(ABC):
 
             # if in keys of model exists {some_name}_id then joined load model name for get module.
             if self.get_addition_entity_name():
-                query = query.options(joinedload(self.get_addition_entity_name()))
+                query = query.options(self.get_addition_entity_name())
 
             query = query.where(self.model.id == entity_id)
-            print('query', query)
             entity = (await session.execute(query)).scalars().first()
 
             if entity is None:

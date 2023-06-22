@@ -3,7 +3,7 @@ import datetime
 from sqlalchemy.orm import defer, joinedload
 
 from src import models
-from src.auth.hashing.hash import hash_password, verify_password
+from src.auth.hashing import hash_password, verify_password
 from src.base_service.base_service import BaseService
 
 from sqlalchemy import or_, func
@@ -220,10 +220,8 @@ class UserService(BaseService):
             query = select(self.model).where(
                 self.model.phone_number == phone_number, self.model.deleted_at == None)
             user = (await session.execute(query)).scalars().first()
-            print('user', user.password)
             if user is None:
                 raise HTTPException(status_code=404, detail=f"{self.get_entity_name()} not found")
-            print('is ver', verify_password(password, jwt_config.SECRET_KEY, user.password))
             if not verify_password(password, jwt_config.SECRET_KEY, user.password):
                 raise HTTPException(status_code=400, detail=f"{self.get_entity_name()} password is incorrect")
             return {
