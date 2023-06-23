@@ -19,6 +19,7 @@ from src.users.routers import router as users_routes
 from src.complains.routers import router as complains_routes
 from src.admins.routers import router as admins_routes
 from src.auth.routers import router as auth_routes
+from src.permissions.routers import router as permissions_routes
 
 app = FastAPI(
     title="Agriculture API",
@@ -74,6 +75,7 @@ routers = [
     complain_statuses_routes,
     complains_routes,
     roles_routes,
+    permissions_routes,
     admins_routes,
 ]
 

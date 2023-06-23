@@ -13,22 +13,39 @@ REFRESH_TOKEN_EXPIRE = jwt_config.refresh_token_expire
 
 
 # Function to create access token
-def create_access_token(user_id: int) -> str:
-    payload = {
-        "iat": datetime.utcnow(),
-        "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE),
-        "user_id": user_id
-    }
-    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+def create_access_token(user_id: int, is_admin: bool = False, role_id: int = None) -> str:
+    if not is_admin:
+        payload = {
+            "iat": datetime.utcnow(),
+            "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE),
+            "user_id": user_id
+        }
+    else:
+        payload = {
+            "iat": datetime.utcnow(),
+            "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE),
+            "admin_id": user_id,
+            "role_id": role_id
+        }
+        return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+        # Function to create refresh token
 
 
-# Function to create refresh token
-def create_refresh_token(user_id: int) -> str:
-    payload = {
-        "iat": datetime.utcnow(),
-        "exp": datetime.utcnow() + timedelta(minutes=REFRESH_TOKEN_EXPIRE),
-        "user_id": user_id
-    }
+def create_refresh_token(user_id: int, is_admin: bool = False, role_id: int = None) -> str:
+    if not is_admin:
+        payload = {
+            "iat": datetime.utcnow(),
+            "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE),
+            "user_id": user_id
+        }
+    else:
+        payload = {
+            "iat": datetime.utcnow(),
+            "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE),
+            "admin_id": user_id,
+            "role_id": role_id
+        }
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 

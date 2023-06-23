@@ -118,7 +118,7 @@ def upgrade() -> None:
     )
     op.create_table('departments',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('title', sa.String(length=255), nullable=False),
+    sa.Column('title', sa.String(length=255), nullable=True),
     sa.Column('phone', sa.String(length=50), nullable=True),
     sa.Column('address', sa.String(length=255), nullable=True),
     sa.Column('district_id', sa.Integer(), nullable=True),

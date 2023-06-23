@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, MetaData, TIMESTAMP, Table, Enum
 
@@ -76,8 +77,10 @@ class Department(Base):
     __tablename__ = 'departments'
 
     id = Column(Integer, primary_key=True)
-    title = Column(String(255), nullable=False)
-    phone = Column(String(50))
+    title_ru = Column(String(255))
+    title_en = Column(String(255))
+    title_uz = Column(String(255))
+    phone_number = Column(String(255))
     address = Column(String(255))
     district_id = Column(Integer, ForeignKey('districts.id'))
 
@@ -226,17 +229,34 @@ class Role(Base):
     name_uz = Column(String(50))
 
     admins = relationship("Admin", back_populates="role")
+    permissions = relationship("Permission", back_populates="role")
 
     def __repr__(self):
         return f'<Role {self.name_ru}>'
+
+
+class Permission(Base):
+    __tablename__ = 'permissions'
+
+    id = Column(Integer, primary_key=True)
+    name_ru = Column(String(255), nullable=False)
+    name_en = Column(String(255))
+    name_uz = Column(String(255))
+    description = Column(String(255))
+    role_id = Column(Integer, ForeignKey('roles.id'))
+
+    role = relationship("Role", back_populates="permissions")
+
+    def __repr__(self):
+        return f'<Permission {self.name_ru}>'
 
 
 class Admin(Base):
     __tablename__ = 'admins'
 
     id = Column(Integer, primary_key=True)
-    username = Column(String(50), nullable=False)
-    email = Column(String(50), nullable=False, unique=True)
+    username = Column(String(255), nullable=False)
+    email = Column(String(255), nullable=False, unique=True)
     password = Column(String(255), nullable=False)
     role_id = Column(Integer, ForeignKey('roles.id'))
     registration_at = Column(DateTime, default=datetime.utcnow)

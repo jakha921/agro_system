@@ -2,7 +2,7 @@ import datetime
 
 from sqlalchemy.orm import defer, joinedload
 
-from src.auth.hashing import hash_password
+from src.auth.hashing import hash_password, verify_password
 from src.base_service.base_service import BaseService
 
 from sqlalchemy import or_, func
@@ -90,9 +90,12 @@ class AdminService(BaseService):
         Create entity
         """
         try:
+            print('data', entity_data)
             get_entity = await self.get_entity_by_email(entity_data.email, session)
-            if get_entity["status"] == "success" and get_entity["data"] is not None:
-                raise HTTPException(status_code=400, detail=f"{self.get_entity_name()} already exists")
+            print('get_entity', get_entity)
+            if get_entity["status"] == "success" and get_entity["data"]:
+                raise HTTPException(status_code=400,
+                                    detail=f"{self.get_entity_name()} with {entity_data.email} already exists")
 
             password = entity_data.password
             print(password)
@@ -184,5 +187,35 @@ class AdminService(BaseService):
             raise HTTPException(status_code=400, detail={
                 "status": "error",
                 "detail": f"{self.get_entity_name()} not deleted",
+                "data": str(e) if str(e) else None
+            })
+
+    async def get_authenticate_admin(self, email: str, password: str, session: AsyncSession):
+        """
+        Authenticate user
+        """
+        try:
+            query = select(self.model).where(
+                self.model.email == email & self.model.deleted_at == None)
+            admin = (await session.execute(query)).scalars().first()
+            if user is None:
+                raise HTTPException(status_code=404, detail=f"{self.get_entity_name()} not found")
+            if not verify_password(password, jwt_config.SECRET_KEY, admin.password):
+                raise HTTPException(status_code=400, detail=f"{self.get_entity_name()} password is incorrect")
+            return {
+                "status": "success",
+                "detail": f"{self.get_entity_name()} authenticated successfully" if user else f"{self.get_entity_name()} not authenticated",
+                "data": admin
+            }
+        except HTTPException as e:
+            raise HTTPException(status_code=404, detail={
+                "status": "error",
+                "detail": e.detail,
+                "data": None
+            })
+        except Exception as e:
+            raise HTTPException(status_code=400, detail={
+                "status": "error",
+                "detail": f"{self.get_entity_name()} not authenticated",
                 "data": str(e) if str(e) else None
             })

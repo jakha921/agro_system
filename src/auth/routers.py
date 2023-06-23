@@ -7,6 +7,7 @@ from src.auth.auth_bearer import JWTBearer
 from src.auth.services import create_access_token, create_refresh_token, decode_jwt
 from src.database import get_async_session
 from src.users.routers import users_service
+from src.admins.routers import admins_service
 
 router = APIRouter(
     prefix="/auth",
@@ -24,8 +25,8 @@ async def login(phone_number: str, password: str, session: AsyncSession = Depend
     print('user', user['data'].id)
 
     # Create the access token and refresh token
-    access_token = create_access_token(user['data'].id)
-    refresh_token = create_refresh_token(user['data'].id)
+    access_token = create_access_token(user['data'].id, False)
+    refresh_token = create_refresh_token(user['data'].id, False)
 
     return {"access_token": access_token, "refresh_token": refresh_token}
 
@@ -45,6 +46,22 @@ async def refresh(refresh_token: str):
         return {"access_token": new_access_token}
     except HTTPException:
         raise HTTPException(status_code=401, detail="Invalid token")
+
+
+# Example login route for admin
+@router.post("/admin/login")
+async def admin_login(email: str, password: str, session: AsyncSession = Depends(get_async_session)):
+    # Perform authentication and get the user_id
+    admin = await admins_service.get_authenticate_admin(email, password, session)
+    print('user', admin)
+    print('user', admin['data'].id)
+
+    # Create the access token and refresh token
+    print('admin', admin['data'].role)
+    access_token = create_access_token(admin['data'].id, True, admin['data'].role)
+    refresh_token = create_refresh_token(admin['data'].id, True)
+
+    return {"access_token": access_token, "refresh_token": refresh_token}
 
 
 # Example protected route

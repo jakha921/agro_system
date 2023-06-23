@@ -24,15 +24,17 @@ class DepartmentService(BaseService):
 
             # join district, city, region, country
             query = query.options(
-                joinedload(self.model.district).joinedload(models.District.city).joinedload(models.City.region).joinedload(
-                    models.Region.country)
+                joinedload(self.model.district).joinedload(models.District.city)
+                .joinedload(models.City.region).joinedload(models.Region.country)
             )
 
             if search:
                 query = query.where(
                     or_(
-                        func.lower(self.model.title).contains(search.lower()),
-                        func.lower(self.model.phone).contains(search.lower()),
+                        func.lower(self.model.title_ru).contains(search.lower()),
+                        func.lower(self.model.title_en).contains(search.lower()),
+                        func.lower(self.model.title_uz).contains(search.lower()),
+                        func.lower(self.model.phone_number).contains(search.lower()),
                         func.lower(self.model.address).contains(search.lower())
                     )
                 )
@@ -60,7 +62,7 @@ class DepartmentService(BaseService):
         """
         try:
             query = select(self.model).where(
-                func.lower(self.model.title) == entity_name.lower(),
+                func.lower(self.model.title_ru) == entity_name.lower(),
             )
             entity = (await session.execute(query)).scalars().first()
             return {
@@ -86,7 +88,7 @@ class DepartmentService(BaseService):
         Create entity
         """
         try:
-            get_entity = await self.get_entity_by_name(entity_data.title, session)
+            get_entity = await self.get_entity_by_name(entity_data.title_ru, session)
             if get_entity["status"] == "success" and get_entity["data"] is not None:
                 raise HTTPException(status_code=400, detail=f"{self.get_entity_name()} already exists")
 
