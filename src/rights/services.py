@@ -1,5 +1,6 @@
 from sqlalchemy.orm import joinedload
 
+from src import models
 from src.base_service.base_service import BaseService
 
 from sqlalchemy import or_, func
@@ -14,7 +15,7 @@ class RightService(BaseService):
         return "Right"
 
     def get_addition_entity_name(self):
-        return self.model.category
+        return joinedload(models.Right.category)
 
     async def get_entities(self, session: AsyncSession, offset: int = None, limit: int = None, search: str = None):
         """
