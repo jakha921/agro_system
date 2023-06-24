@@ -41,12 +41,18 @@ class DepartmentService(BaseService):
             if offset and limit:
                 query = query.offset((offset - 1) * limit).limit(limit)
 
+            response = (await session.execute(query)).scalars().all()
+            # +998712000000,+998712000001 -> ['+998712000000', '+998712000001']
+            # for item in response:
+            #     item.phone_number = item.phone_number.split(',') if item.phone_number else []
+            #     print(type(item.phone_number))
+
             return {
                 "status": "success",
                 "detail": f"{self.get_entity_name()} retrieved successfully",
                 "data": {
                     "total": (await session.execute(length_query)).scalar(),
-                    "items": (await session.execute(query)).scalars().all()
+                    "items": response
                 }
             }
         except Exception as e:
@@ -83,6 +89,41 @@ class DepartmentService(BaseService):
                 "data": str(e) if str(e) else None
             })
 
+    async def get_entity(self, entity_id: int, session: AsyncSession):
+        """
+        Get entity by id
+        """
+        try:
+            query = select(self.model)
+
+            # if in keys of model exists {some_name}_id then joined load model name for get module.
+            if self.get_addition_entity_name():
+                query = query.options(self.get_addition_entity_name())
+
+            query = query.where(self.model.id == entity_id)
+            entity = (await session.execute(query)).scalars().first()
+            entity.phone_number = entity.phone_number.split(',') if entity.phone_number else []
+
+            if entity is None:
+                raise HTTPException(status_code=404, detail=f"{self.get_entity_name()} not found")
+            return {
+                "status": "success",
+                "detail": f"{self.get_entity_name()} retrieved successfully",
+                "data": entity
+            }
+        except HTTPException as e:
+            raise HTTPException(status_code=404, detail={
+                "status": "error",
+                "detail": e.detail,
+                "data": None
+            })
+        except Exception as e:
+            raise HTTPException(status_code=400, detail={
+                "status": "error",
+                "detail": f"{self.get_entity_name()} not retrieved",
+                "data": str(e) if str(e) else None
+            })
+
     async def create_entity(self, entity_data, session: AsyncSession):
         """
         Create entity
@@ -93,6 +134,8 @@ class DepartmentService(BaseService):
                 raise HTTPException(status_code=400, detail=f"{self.get_entity_name()} already exists")
 
             entity = self.model(**entity_data.dict())
+            entity.phone_number = \
+                str(entity_data.phone_number).replace(' ', '').replace('[', '').replace(']', '').replace("'", '')
             session.add(entity)
             await session.commit()
             return {
