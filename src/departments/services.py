@@ -13,6 +13,10 @@ class DepartmentService(BaseService):
     def get_entity_name(self):
         return "Department"
 
+    def get_addition_entity_name(self):
+        return joinedload(models.Department.district).joinedload(models.District.city).joinedload(
+            models.City.region).joinedload(models.Region.country)
+
     async def get_entities(self, session: AsyncSession, offset: int = None, limit: int = None, search: str = None):
         """
         Get all entities
@@ -23,10 +27,7 @@ class DepartmentService(BaseService):
             length_query = select(func.count(self.model.id))
 
             # join district, city, region, country
-            query = query.options(
-                joinedload(self.model.district).joinedload(models.District.city)
-                .joinedload(models.City.region).joinedload(models.Region.country)
-            )
+            query = query.options(self.get_addition_entity_name())
 
             if search:
                 query = query.where(
@@ -42,10 +43,13 @@ class DepartmentService(BaseService):
                 query = query.offset((offset - 1) * limit).limit(limit)
 
             response = (await session.execute(query)).scalars().all()
+
             # +998712000000,+998712000001 -> ['+998712000000', '+998712000001']
-            # for item in response:
-            #     item.phone_number = item.phone_number.split(',') if item.phone_number else []
-            #     print(type(item.phone_number))
+
+            for item in response:
+                item.phone_number = item.phone_number.split(',')[0] if item.phone_number else None
+
+
 
             return {
                 "status": "success",
