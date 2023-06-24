@@ -25,7 +25,7 @@ class UserService(BaseService):
         """
         try:
             query = select(self.model)
-            length_query = select(func.count(self.model.id))
+            length_query = select(func.count(self.model.id)).where(self.model.deleted_at == None)
 
             # join district, city, region, country
             query = query.options(
@@ -39,9 +39,10 @@ class UserService(BaseService):
                 joinedload(self.model.status)
             )
 
+            query = query.where(self.model.deleted_at == None)
+
             if search:
                 query = query.where(
-                    (self.model.deleted_at == None) &
                     or_(
                         func.lower(self.model.username).contains(search.lower()),
                         func.lower(self.model.phone_number).contains(search.lower()),
@@ -81,7 +82,7 @@ class UserService(BaseService):
         """
         try:
             query = select(self.model).where(
-                func.lower(self.model.phone_number) == entity_name.lower(),
+                func.lower(self.model.phone) == entity_name.lower(),
             )
             entity = (await session.execute(query)).scalars().first()
             return {
@@ -107,7 +108,7 @@ class UserService(BaseService):
         Create entity
         """
         try:
-            exist_entity = (await self.get_entity_by_phone(entity_data.phone_number, session))
+            exist_entity = (await self.get_entity_by_phone(entity_data.phone, session))
             if exist_entity["status"] == "success" and exist_entity["data"]:
                 raise HTTPException(status_code=400, detail="Phone number already exist")
 
