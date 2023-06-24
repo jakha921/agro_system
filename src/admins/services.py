@@ -24,7 +24,7 @@ class AdminService(BaseService):
         """
         try:
             query = select(self.model)
-            length_query = select(func.count(self.model.id))
+            length_query = select(func.count(self.model.id)).where(self.model.deleted_at == None)
 
             query = query.options(joinedload(self.model.role))
 
