@@ -1,5 +1,6 @@
 from sqlalchemy import func, or_
 from sqlalchemy.orm import joinedload
+from sqlalchemy.orm.strategy_options import defer
 
 from src import models
 from src.base_service.base_service import BaseService
@@ -42,21 +43,15 @@ class DepartmentService(BaseService):
             if offset and limit:
                 query = query.offset((offset - 1) * limit).limit(limit)
 
-            response = (await session.execute(query)).scalars().all()
-
-            # +998712000000,+998712000001 -> ['+998712000000', '+998712000001']
-
-            for item in response:
-                item.phone_number = item.phone_number.split(',')[0] if item.phone_number else None
-
-
+            # remove phone numbers
+            query = query.options(defer(self.model.phone_number))
 
             return {
                 "status": "success",
                 "detail": f"{self.get_entity_name()} retrieved successfully",
                 "data": {
                     "total": (await session.execute(length_query)).scalar(),
-                    "items": response
+                    "items": (await session.execute(query)).scalars().all()
                 }
             }
         except Exception as e:

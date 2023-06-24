@@ -80,6 +80,7 @@ class Department(Base):
     title_ru = Column(String(255))
     title_en = Column(String(255))
     title_uz = Column(String(255))
+    phone = Column(String(255))
     phone_number = Column(String(255))
     address = Column(String(255))
     district_id = Column(Integer, ForeignKey('districts.id'))
