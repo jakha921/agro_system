@@ -28,13 +28,14 @@ class AdminService(BaseService):
 
             query = query.options(joinedload(self.model.role))
 
+            query = query.where(self.model.deleted_at == None)
+
             if search:
                 query = query.where(
-                    (self.model.deleted_at == None) &
                     or_(
                         func.lower(self.model.username).contains(search.lower()),
                         func.lower(self.model.email).contains(search.lower())
-                    )
+                    ),
                 )
 
             if offset and limit:
