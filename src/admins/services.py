@@ -24,11 +24,9 @@ class AdminService(BaseService):
         """
         try:
             query = select(self.model)
-            length_query = select(func.count(self.model.id)).where(self.model.deleted_at == None)
+            length_query = select(func.count(self.model.id))
 
             query = query.options(joinedload(self.model.role))
-
-            query = query.where(self.model.deleted_at == None)
 
             if search:
                 query = query.where(
@@ -64,7 +62,7 @@ class AdminService(BaseService):
         Get entity by name
         """
         try:
-            query = select(self.model).where(self.model.email == entity_name, self.model.deleted_at == None)
+            query = select(self.model).where(self.model.email == entity_name)
             entity = (await session.execute(query)).scalars().first()
             # if entity is None:
             #     raise HTTPException(status_code=404, detail=f"{self.get_entity_name()} not found")
@@ -171,7 +169,9 @@ class AdminService(BaseService):
             entity = (await session.execute(query)).scalars().first()
             if entity is None:
                 raise HTTPException(status_code=404, detail=f"{self.get_entity_name()} not found")
-            setattr(entity, "deleted_at", datetime.datetime.utcnow())
+            if entity.email == "admin":
+                raise HTTPException(status_code=404, detail=f"Admin can't be deleted")
+            await session.delete(entity)
             await session.commit()
             return {
                 "status": "success",
