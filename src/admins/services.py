@@ -165,7 +165,7 @@ class AdminService(BaseService):
         Delete entity by id
         """
         try:
-            query = select(self.model).where(self.model.id == entity_id, self.model.deleted_at == None)
+            query = select(self.model).where(self.model.id == entity_id)
             entity = (await session.execute(query)).scalars().first()
             if entity is None:
                 raise HTTPException(status_code=404, detail=f"{self.get_entity_name()} not found")
