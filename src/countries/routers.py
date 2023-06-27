@@ -43,9 +43,9 @@ async def update_country(country_id: int, country: schemas.CountryUpdate,
     return await country_service.update_entity(country_id, country, session)
 
 
-@router.delete("/{country_id}")
-async def delete_country(country_id: int, session: AsyncSession = Depends(get_async_session)):
-    return await country_service.delete_entity(country_id, session)
+@router.delete("/")
+async def delete_country(country_ids: list[int], session: AsyncSession = Depends(get_async_session)):
+    return await country_service.delete_entities(country_ids, session)
 
 
 @router.get("/name/{country_name}")

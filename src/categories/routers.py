@@ -38,6 +38,6 @@ async def update_category(category_id: int, category: schemas.CategoryUpdate,
     return await categories_service.update_entity(category_id, category, session)
 
 
-@router.delete("/{category_id}")
-async def delete_category(category_id: int, session: AsyncSession = Depends(get_async_session)):
-    return await categories_service.delete_entity(category_id, session)
+@router.delete("/")
+async def delete_category(category_ids: list[int], session: AsyncSession = Depends(get_async_session)):
+    return await categories_service.delete_entities(category_ids, session)

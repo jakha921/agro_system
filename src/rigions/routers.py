@@ -38,6 +38,6 @@ async def update_region(region_id: int, region: schemas.RegionUpdate,
     return await region_service.update_entity(region_id, region, session)
 
 
-@router.delete("/{region_id}")
-async def delete_region(region_id: int, session: AsyncSession = Depends(get_async_session)):
-    return await region_service.delete_entity(region_id, session)
+@router.delete("/")
+async def delete_region(region_ids: list[int], session: AsyncSession = Depends(get_async_session)):
+    return await region_service.delete_entities(region_ids, session)

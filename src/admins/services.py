@@ -160,23 +160,26 @@ class AdminService(BaseService):
                 "data": str(e) if str(e) else None
             })
 
-    async def delete_entity(self, entity_id: int, session: AsyncSession):
+    async def delete_entity(self, entity_ids: list[int], session: AsyncSession):
         """
         Delete entity by id
         """
         try:
-            query = select(self.model).where(self.model.id == entity_id)
-            entity = (await session.execute(query)).scalars().first()
-            if entity is None:
-                raise HTTPException(status_code=404, detail=f"{self.get_entity_name()} not found")
-            if entity.email == "admin":
-                raise HTTPException(status_code=404, detail=f"Admin can't be deleted")
-            await session.delete(entity)
-            await session.commit()
+            deleted = []
+            for entity_id in entity_ids:
+                query = select(self.model).where(self.model.id == entity_id)
+                entity = (await session.execute(query)).scalars().first()
+                if entity is None:
+                    raise HTTPException(status_code=404, detail=f"{self.get_entity_name()} not found")
+                if entity.email == "admin@gmail.com":
+                    raise HTTPException(status_code=404, detail="Admin with admin@gmail.com email can't be deleted")
+                await session.delete(entity)
+                await session.commit()
+                deleted.append(entity)
             return {
                 "status": "success",
                 "detail": f"{self.get_entity_name()} deleted successfully",
-                "data": entity
+                "data": deleted
             }
         except HTTPException as e:
             raise HTTPException(status_code=404, detail={

@@ -38,6 +38,6 @@ async def update_city(city_id: int, city: schemas.CityUpdate,
     return await city_service.update_entity(city_id, city, session)
 
 
-@router.delete("/{city_id}")
-async def delete_city(city_id: int, session: AsyncSession = Depends(get_async_session)):
-    return await city_service.delete_entity(city_id, session)
+@router.delete("/")
+async def delete_city(city_ids: list[int], session: AsyncSession = Depends(get_async_session)):
+    return await city_service.delete_entities(city_ids, session)

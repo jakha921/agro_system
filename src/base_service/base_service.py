@@ -217,3 +217,35 @@ class BaseService(ABC):
                 "detail": f"{self.get_entity_name()} not deleted",
                 "data": str(e) if str(e) else None
             })
+
+    async def delete_entities(self, entity_ids: list[int], session: AsyncSession):
+        """
+        Delete entity by id
+        """
+        try:
+            delete_entities = []
+            for entity_id in entity_ids:
+                query = select(self.model).where(self.model.id == entity_id)
+                entity = (await session.execute(query)).scalars().first()
+                if entity is None:
+                    raise HTTPException(status_code=404, detail=f"{self.get_entity_name()} not found")
+                await session.delete(entity)
+                await session.commit()
+                delete_entities.append(entity)
+            return {
+                "status": "success",
+                "detail": f"{self.get_entity_name()} deleted successfully",
+                "data": delete_entities
+            }
+        except HTTPException as e:
+            raise HTTPException(status_code=404, detail={
+                "status": "error",
+                "detail": e.detail,
+                "data": None
+            })
+        except Exception as e:
+            raise HTTPException(status_code=400, detail={
+                "status": "error",
+                "detail": f"{self.get_entity_name()} not deleted",
+                "data": str(e) if str(e) else None
+            })

@@ -38,6 +38,6 @@ async def update_right(right_id: int, right: schemas.RightUpdate,
     return await rights_service.update_entity(right_id, right, session)
 
 
-@router.delete("/{right_id}")
-async def delete_right(right_id: int, session: AsyncSession = Depends(get_async_session)):
-    return await rights_service.delete_entity(right_id, session)
+@router.delete("/")
+async def delete_right(right_ids: list[int], session: AsyncSession = Depends(get_async_session)):
+    return await rights_service.delete_entities(right_ids, session)

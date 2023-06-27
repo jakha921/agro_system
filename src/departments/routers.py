@@ -38,6 +38,6 @@ async def update_department(department_id: int, department: schemas.DepartmentUp
     return await department_service.update_entity(department_id, department, session)
 
 
-@router.delete("/{department_id}")
-async def delete_department(department_id: int, session: AsyncSession = Depends(get_async_session)):
-    return await department_service.delete_entity(department_id, session)
+@router.delete("/")
+async def delete_department(department_ids: [int], session: AsyncSession = Depends(get_async_session)):
+    return await department_service.delete_entities(department_ids, session)

@@ -38,6 +38,6 @@ async def update_district(district_id: int, district: schemas.DistrictUpdate,
     return await district_service.update_entity(district_id, district, session)
 
 
-@router.delete("/{district_id}")
-async def delete_district(district_id: int, session: AsyncSession = Depends(get_async_session)):
-    return await district_service.delete_entity(district_id, session)
+@router.delete("/")
+async def delete_district(district_ids: list[int], session: AsyncSession = Depends(get_async_session)):
+    return await district_service.delete_entities(district_ids, session)

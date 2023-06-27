@@ -38,6 +38,6 @@ async def update_admin(admin_id: int, admin: schemas.AdminUpdate,
     return await admins_service.update_entity(admin_id, admin, session)
 
 
-@router.delete("/{admin_id}")
-async def delete_admin(admin_id: int, session: AsyncSession = Depends(get_async_session)):
-    return await admins_service.delete_entity(admin_id, session)
+@router.delete("/")
+async def delete_admin(admin_ids: list[int], session: AsyncSession = Depends(get_async_session)):
+    return await admins_service.delete_entity(admin_ids, session)
