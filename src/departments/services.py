@@ -160,7 +160,7 @@ class DepartmentService(BaseService):
         Update entity by id
         """
         try:
-            get_entity = await self.get_entity_by_name(entity_data.title, session)
+            get_entity = await self.get_entity_by_name(entity_data.title_ru, session)
             if get_entity["status"] == "success" and get_entity["data"] is not None:
                 raise HTTPException(status_code=400, detail=f"{self.get_entity_name()} already exists")
 
