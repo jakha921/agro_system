@@ -151,6 +151,15 @@ class User(Base):
         return f'<User {self.username}>'
 
 
+# Промежуточная таблица для связи многие-ко-многим
+category_right = Table(
+    "category_right",
+    Base.metadata,
+    Column("category_id", Integer, ForeignKey("categories.id")),
+    Column("right_id", Integer, ForeignKey("rights.id"))
+)
+
+
 class Category(Base):
     __tablename__ = 'categories'
 
@@ -162,7 +171,7 @@ class Category(Base):
     short_description_en = Column(String(255))
     short_description_uz = Column(String(255))
 
-    rights = relationship("Right", back_populates="category")
+    rights = relationship("Right", secondary=category_right, back_populates="categories")
 
     def __repr__(self):
         return f'<Category {self.title_ru}>'
@@ -178,9 +187,8 @@ class Right(Base):
     short_description_ru = Column(String(255), nullable=False)
     short_description_en = Column(String(255))
     short_description_uz = Column(String(255))
-    category_id = Column(Integer, ForeignKey('categories.id'))
 
-    category = relationship("Category", back_populates="rights")
+    categories = relationship("Category", secondary=category_right, back_populates="rights")
 
     def __repr__(self):
         return f'<Right {self.title_ru}>'
@@ -221,6 +229,15 @@ class Complain(Base):
         return f'<Complain {self.title}>'
 
 
+# Промежуточная таблица для связи многие-ко-многим
+role_permission = Table(
+    "role_permission",
+    Base.metadata,
+    Column("role_id", Integer, ForeignKey("roles.id")),
+    Column("permission_id", Integer, ForeignKey("permissions.id"))
+)
+
+
 class Role(Base):
     __tablename__ = 'roles'
 
@@ -230,7 +247,7 @@ class Role(Base):
     name_uz = Column(String(50))
 
     admins = relationship("Admin", back_populates="role")
-    permissions = relationship("Permission", back_populates="role")
+    permissions = relationship("Permission", secondary=role_permission, back_populates="role")
 
     def __repr__(self):
         return f'<Role {self.name_ru}>'
@@ -240,13 +257,13 @@ class Permission(Base):
     __tablename__ = 'permissions'
 
     id = Column(Integer, primary_key=True)
-    name_ru = Column(String(255), nullable=False)
+    alias = Column(String(255), nullable=False)
+    name_ru = Column(String(255))
     name_en = Column(String(255))
     name_uz = Column(String(255))
     description = Column(String(255))
-    role_id = Column(Integer, ForeignKey('roles.id'))
 
-    role = relationship("Role", back_populates="permissions")
+    role = relationship("Role", secondary=role_permission, back_populates="permissions")
 
     def __repr__(self):
         return f'<Permission {self.name_ru}>'

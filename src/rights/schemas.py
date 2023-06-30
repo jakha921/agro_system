@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 
 
 class RightCreate(BaseModel):
-    category_id: int = Field(..., gt=0)
+    category_ids: list[int] = Field(..., min_items=1)
     title_ru: str = Field(..., max_length=50)
     title_en: Optional[str] = Field(None, max_length=50)
     title_uz: Optional[str] = Field(None, max_length=50)
@@ -16,7 +16,7 @@ class RightCreate(BaseModel):
         orm_mode = True
         schema_extra = {
             "example": {
-                "category_id": 1,
+                "category_ids": [1, 2],
                 "title_ru": "Право 1",
                 "title_en": "Right 1",
                 "title_uz": "Huquq 1",
@@ -28,6 +28,6 @@ class RightCreate(BaseModel):
 
 
 class RightUpdate(RightCreate):
-    category_id: Optional[int] = Field(None, gt=0)
+    category_ids: Optional[list[int]] = Field(None, min_items=1)
     title_ru: Optional[str] = Field(None, max_length=50)
     short_description_ru: Optional[str] = Field(None, max_length=255)
