@@ -86,7 +86,7 @@ class RoleService:
         try:
             query = select(models.Role).where(models.Role.id == role_id)
             role_db = (await session.execute(query)).scalars().first()
-            if role_db is None:
+            if role_db is None or role_db.id != role_id:
                 raise HTTPException(status_code=404, detail="Role not found")
             for key, value in role.dict().items():
                 if value is not None:

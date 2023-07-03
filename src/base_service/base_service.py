@@ -160,7 +160,7 @@ class BaseService(ABC):
         """
         try:
             get_entity = await self.get_entity_by_name(entity_data.name_ru, session)
-            if get_entity["status"] == "success" and get_entity["data"] is not None:
+            if get_entity["status"] == "success" and get_entity["data"] is not None and get_entity["data"].id != entity_id:
                 raise HTTPException(status_code=400, detail=f"{self.get_entity_name()} already exists")
 
             query = select(self.model).where(self.model.id == entity_id)
