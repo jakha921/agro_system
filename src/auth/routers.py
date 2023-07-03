@@ -55,13 +55,21 @@ async def admin_login(email: str, password: str, session: AsyncSession = Depends
     # Perform authentication and get the user_id
     admin = await admins_service.get_authenticate_admin(email, password, session)
     print('user', admin)
+    role = await RoleService.get_role(admin['data'].role_id, session)
     get_role_permissions = await RoleService.get_role_permissions(admin['data'].role_id, session)
 
     # Create the access token and refresh token
     access_token = create_access_token(admin['data'].id, True, admin['data'].role_id, get_role_permissions)
     refresh_token = create_refresh_token(admin['data'].id, True)
+    data = {
+        "id": admin['data'].id,
+        "name": admin['data'].username,
+        "email": admin['data'].email,
+        "role": role['data'],
+        "role_permissions": get_role_permissions
+    }
 
-    return {"access_token": access_token, "refresh_token": refresh_token}
+    return {"access_token": access_token, "refresh_token": refresh_token, "data": data}
 
 
 # Example protected route
