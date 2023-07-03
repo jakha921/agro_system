@@ -3,6 +3,8 @@ from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.auth.auth_bearer import JWTBearer
+from src.auth.services import check_permission
 from src.database import get_async_session
 from src.models import Role
 from src.roles.schemas import RoleCreate
@@ -16,7 +18,9 @@ router = APIRouter(
 
 
 @router.get("/")
-async def read_root(session: AsyncSession = Depends(get_async_session)):
+async def read_root(session: AsyncSession = Depends(get_async_session),
+                    current_user: str = Depends(JWTBearer())):
+    check_permission("read_role", current_user)
     """
     Get all roles
     """
@@ -25,7 +29,9 @@ async def read_root(session: AsyncSession = Depends(get_async_session)):
 
 @router.post("/")
 async def create_role(role: RoleCreate,
-                      session: AsyncSession = Depends(get_async_session)):
+                      session: AsyncSession = Depends(get_async_session),
+                      current_user: str = Depends(JWTBearer())):
+    check_permission("create_role", current_user)
     """
     Create role
     """
@@ -34,7 +40,9 @@ async def create_role(role: RoleCreate,
 
 @router.get("/{role_id}")
 async def read_role(role_id: int,
-                    session: AsyncSession = Depends(get_async_session)):
+                    session: AsyncSession = Depends(get_async_session),
+                    current_user: str = Depends(JWTBearer())):
+    check_permission("read_role", current_user)
     """
     Get role by id
     """
@@ -44,7 +52,9 @@ async def read_role(role_id: int,
 @router.patch("/{role_id}")
 async def update_role(role_id: int,
                       role: RoleCreate,
-                      session: AsyncSession = Depends(get_async_session)):
+                      session: AsyncSession = Depends(get_async_session),
+                      current_user: str = Depends(JWTBearer())):
+    check_permission("update_role", current_user)
     """
     Update role by id
     """
@@ -53,7 +63,9 @@ async def update_role(role_id: int,
 
 @router.delete("/{role_id}")
 async def delete_role(role_id: int,
-                      session: AsyncSession = Depends(get_async_session)):
+                      session: AsyncSession = Depends(get_async_session),
+                      current_user: str = Depends(JWTBearer())):
+    check_permission("delete_role", current_user)
     """
     Delete role by id
     """
