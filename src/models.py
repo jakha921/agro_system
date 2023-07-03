@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, MetaData, TIMESTAMP, Table, Enum
 
@@ -266,7 +265,7 @@ class Permission(Base):
     role = relationship("Role", secondary=role_permission, back_populates="permissions")
 
     def __repr__(self):
-        return f'<Permission {self.name_ru}>'
+        return f'<Permission {self.alias}>'
 
 
 class Admin(Base):

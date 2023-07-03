@@ -17,8 +17,9 @@ permission_service = PermissionService(Permission)
 
 
 @router.get("/")
-async def get_permissions(session: AsyncSession = Depends(get_async_session)):
-    return await permission_service.get_entities(session)
+async def get_permissions(page: int = None, limit: int = None, search: str = None,
+                          session: AsyncSession = Depends(get_async_session)):
+    return await permission_service.get_entities(session, page, limit, search)
 
 
 @router.post("/")
@@ -33,10 +34,10 @@ async def get_permission(permission_id: int, session: AsyncSession = Depends(get
 
 @router.patch("/{permission_id}")
 async def update_permission(permission_id: int, permission: schemas.PermissionUpdate,
-                        session: AsyncSession = Depends(get_async_session)):
+                            session: AsyncSession = Depends(get_async_session)):
     return await permission_service.update_entity(permission_id, permission, session)
 
 
-@router.delete("/{permission_id}")
-async def delete_permission(permission_id: int, session: AsyncSession = Depends(get_async_session)):
-    return await permission_service.delete_entity(permission_id, session)
+@router.delete("/")
+async def delete_permission(permission_ids: list[int], session: AsyncSession = Depends(get_async_session)):
+    return await permission_service.delete_entities(permission_ids, session)

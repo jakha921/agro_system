@@ -4,8 +4,9 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.auth_bearer import JWTBearer
-from src.auth.services import create_access_token, create_refresh_token, decode_jwt
+from src.auth.services import create_access_token, create_refresh_token, decode_jwt, check_permission
 from src.database import get_async_session
+from src.roles.services import RoleService
 from src.users.routers import users_service
 from src.admins.routers import admins_service
 
@@ -54,11 +55,10 @@ async def admin_login(email: str, password: str, session: AsyncSession = Depends
     # Perform authentication and get the user_id
     admin = await admins_service.get_authenticate_admin(email, password, session)
     print('user', admin)
-    print('user', admin['data'].id)
+    get_role_permissions = await RoleService.get_role_permissions(admin['data'].role_id, session)
 
     # Create the access token and refresh token
-    print('admin', admin['data'].role)
-    access_token = create_access_token(admin['data'].id, True, admin['data'].role)
+    access_token = create_access_token(admin['data'].id, True, admin['data'].role_id, get_role_permissions)
     refresh_token = create_refresh_token(admin['data'].id, True)
 
     return {"access_token": access_token, "refresh_token": refresh_token}
@@ -66,5 +66,11 @@ async def admin_login(email: str, password: str, session: AsyncSession = Depends
 
 # Example protected route
 @router.get("/protected")
-async def protected_route(current_user: str = Depends(JWTBearer())):
-    return {"message": f"Hello, {current_user}! This is a protected route."}
+async def protected_route(
+        current_user: str = Depends(JWTBearer())):
+    check_permission("read_guide", current_user)
+    return {
+        "status": "success",
+        "message": "You have access to this resource",
+        "data": decode_jwt(current_user)
+    }

@@ -2,6 +2,7 @@ import datetime
 
 from sqlalchemy.orm import defer, joinedload
 
+from src import models
 from src.auth.hashing import hash_password, verify_password
 from src.base_service.base_service import BaseService
 
@@ -89,18 +90,13 @@ class AdminService(BaseService):
         Create entity
         """
         try:
-            print('data', entity_data)
             get_entity = await self.get_entity_by_email(entity_data.email, session)
             print('get_entity', get_entity)
             if get_entity["status"] == "success" and get_entity["data"]:
                 raise HTTPException(status_code=400,
                                     detail=f"{self.get_entity_name()} with {entity_data.email} already exists")
 
-            password = entity_data.password
-            print(password)
-            hashed_password = hash_password(password, jwt_config.SECRET_KEY)
-            entity_data.password = hashed_password
-            print(entity_data.password)
+            entity_data.password = hash_password(entity_data.password, jwt_config.SECRET_KEY)
             entity = self.model(**entity_data.dict())
             session.add(entity)
             await session.commit()
@@ -138,6 +134,12 @@ class AdminService(BaseService):
             entity = (await session.execute(query)).scalars().first()
             if entity is None:
                 raise HTTPException(status_code=404, detail=f"{self.get_entity_name()} not found")
+
+            print('entity_data', entity_data)
+            if entity_data.password:
+                hashed_password = hash_password(entity_data.password, jwt_config.SECRET_KEY)
+                entity_data.password = hashed_password
+                print('hashed_password', hashed_password)
             for key, value in entity_data.dict().items():
                 if value is not None:
                     setattr(entity, key, value)
@@ -199,17 +201,16 @@ class AdminService(BaseService):
         Authenticate user
         """
         try:
-            query = select(self.model).where(
-                self.model.email == email & self.model.deleted_at == None)
-            admin = (await session.execute(query)).scalars().first()
-            if user is None:
+            query = select(self.model).where(self.model.email == email)
+            entity = (await session.execute(query)).scalars().first()
+            if entity is None:
                 raise HTTPException(status_code=404, detail=f"{self.get_entity_name()} not found")
-            if not verify_password(password, jwt_config.SECRET_KEY, admin.password):
-                raise HTTPException(status_code=400, detail=f"{self.get_entity_name()} password is incorrect")
+            if not verify_password(password, jwt_config.SECRET_KEY, entity.password):
+                raise HTTPException(status_code=404, detail="Incorrect password")
             return {
                 "status": "success",
-                "detail": f"{self.get_entity_name()} authenticated successfully" if user else f"{self.get_entity_name()} not authenticated",
-                "data": admin
+                "detail": f"{self.get_entity_name()} authenticated successfully",
+                "data": entity
             }
         except HTTPException as e:
             raise HTTPException(status_code=404, detail={

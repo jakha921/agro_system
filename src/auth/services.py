@@ -13,7 +13,7 @@ REFRESH_TOKEN_EXPIRE = jwt_config.refresh_token_expire
 
 
 # Function to create access token
-def create_access_token(user_id: int, is_admin: bool = False, role_id: int = None) -> str:
+def create_access_token(user_id: int, is_admin: bool = False, role_id: int = None, permissions: list = None) -> str:
     if not is_admin:
         payload = {
             "iat": datetime.utcnow(),
@@ -25,7 +25,8 @@ def create_access_token(user_id: int, is_admin: bool = False, role_id: int = Non
             "iat": datetime.utcnow(),
             "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE),
             "admin_id": user_id,
-            "role_id": role_id
+            "role_id": role_id,
+            "permissions": permissions
         }
         return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
@@ -56,3 +57,14 @@ def decode_jwt(token: str) -> dict:
         return payload
     except:
         return {}
+
+
+# check permission
+def check_permission(permission: str, current_user: str = Depends(decode_jwt)):
+    if permission not in decode_jwt(current_user)['permissions']:
+        raise HTTPException(status_code=403, detail={
+            "status": "error",
+            "message": "You don't have permission to access this resource",
+            "data": None
+        })
+    return True

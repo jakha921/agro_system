@@ -4,24 +4,26 @@ from pydantic import BaseModel
 
 
 class PermissionCreate(BaseModel):
-    name_ru: str
+    alias: str
+    name_ru: Optional[str]
     name_en: Optional[str]
     name_uz: Optional[str]
     description: Optional[str]
-    role_id: int
+    role_ids: list[int]
 
     class Config:
         orm_mode = True
         schema_extra = {
             "example": {
-                "name_ru": "Просмотр",
-                "name_en": "View",
-                "name_uz": "Ko'rish",
-                "description": "Просмотр информации",
-                "role_id": 1
+                "alias": "create_guide",
+                "name_ru": "Создание cправочника",
+                "name_en": "Create guide",
+                "name_uz": "Qo'llanma yaratish",
+                "description": "Право на создание справочника",
+                "role_ids": [1, 2]
             }
         }
 
 
 class PermissionUpdate(PermissionCreate):
-    name_ru: Optional[str]
+    pass

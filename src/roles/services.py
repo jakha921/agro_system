@@ -1,7 +1,7 @@
 from typing import Optional
 
 from fastapi import HTTPException
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src import models
@@ -139,3 +139,18 @@ class RoleService:
                 "detail": "Role not deleted",
                 "data": str(e) if str(e) else None
             })
+
+    @staticmethod
+    async def get_role_permissions(role_id: int, session: AsyncSession):
+        """
+        Get role permissions
+        """
+        try:
+            permission_ids = (await session.execute(
+                select(models.role_permission.c.permission_id).where(models.role_permission.c.role_id == role_id)
+            )).scalars().all()
+            query = select(models.Permission.alias).where(models.Permission.id.in_(permission_ids))
+
+            return (await session.execute(query)).scalars().all()
+        except Exception as e:
+            raise HTTPException(status_code=400, detail="Permissions not retrieved")

@@ -53,8 +53,8 @@ async def update_role(role_id: int,
 
 @router.delete("/{role_id}")
 async def delete_role(role_id: int,
-                        session: AsyncSession = Depends(get_async_session)):
-        """
-        Delete role by id
-        """
-        return await RoleService.delete_role(role_id, session)
+                      session: AsyncSession = Depends(get_async_session)):
+    """
+    Delete role by id
+    """
+    return await RoleService.delete_role(role_id, session)
