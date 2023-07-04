@@ -169,7 +169,7 @@ class PermissionService(BaseService):
         Update entity by id
         """
         try:
-            get_entity = await self.get_entity_by_name(entity_data.title_ru, session)
+            get_entity = await self.get_entity_by_name(entity_data.name_ru, session)
             if get_entity["status"] == "success" and get_entity["data"] is not None and get_entity["data"].id != entity_id:
                 raise HTTPException(status_code=400, detail=f"{self.get_entity_name()} already exists")
 
