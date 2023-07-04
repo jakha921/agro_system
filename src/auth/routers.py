@@ -66,7 +66,6 @@ async def admin_login(email: str, password: str, session: AsyncSession = Depends
         "name": admin['data'].username,
         "email": admin['data'].email,
         "role": role['data'],
-        "role_permissions": get_role_permissions
     }
 
     return {"access_token": access_token, "refresh_token": refresh_token, "data": data}

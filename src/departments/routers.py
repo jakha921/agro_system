@@ -42,7 +42,7 @@ async def get_department(department_id: int, session: AsyncSession = Depends(get
 
 @router.patch("/{department_id}")
 async def update_department(department_id: int, department: schemas.DepartmentUpdate,
-                          session: AsyncSession = Depends(get_async_session),
+                            session: AsyncSession = Depends(get_async_session),
                             current_user: str = Depends(JWTBearer())):
     check_permission("update_department", current_user)
     return await department_service.update_entity(department_id, department, session)

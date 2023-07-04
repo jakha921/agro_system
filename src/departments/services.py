@@ -161,13 +161,18 @@ class DepartmentService(BaseService):
         """
         try:
             get_entity = await self.get_entity_by_name(entity_data.title_ru, session)
-            if get_entity["status"] == "success" and get_entity["data"] is not None and get_entity["data"].id != entity_id:
+            if get_entity["status"] == "success" and get_entity["data"] is not None and get_entity[
+                "data"].id != entity_id:
                 raise HTTPException(status_code=400, detail=f"{self.get_entity_name()} already exists")
 
             query = select(self.model).where(self.model.id == entity_id)
             entity = (await session.execute(query)).scalars().first()
             if entity is None:
                 raise HTTPException(status_code=404, detail=f"{self.get_entity_name()} not found")
+
+            entity_data.phone_number = \
+                str(entity_data.phone_number).replace(' ', '').replace('[', '').replace(']', '').replace("'", '')
+
             for key, value in entity_data.dict().items():
                 if value is not None:
                     setattr(entity, key, value)
