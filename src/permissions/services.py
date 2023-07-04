@@ -169,7 +169,7 @@ class PermissionService(BaseService):
         Update entity by id
         """
         try:
-            get_entity = await self.get_entity_by_name(entity_data.name_ru, session)
+            get_entity = await self.get_entity_by_name(entity_data.alias, session)
             if get_entity["status"] == "success" and get_entity["data"] is not None and get_entity["data"].id != entity_id:
                 raise HTTPException(status_code=400, detail=f"{self.get_entity_name()} already exists")
 
@@ -181,21 +181,27 @@ class PermissionService(BaseService):
                 if value is not None:
                     setattr(entity, key, value)
 
+
             # Remove all categories from entity and add new categories
             await session.execute(delete(models.category_right).where(models.category_right.c.right_id == entity_id))
 
             # Get role by id
-            role_ids = entity_data.role_ids
-            role = await session.execute(select(models.Role).where(models.Role.id.in_(role_ids)))
+            role = await session.execute(select(models.Role).where(models.Role.id.in_(entity_data.role_ids)))
             role = role.scalars().all()
+            print('entity', entity)
 
-            if len(role_ids) != len(role):
+            if len(entity_data.role_ids) != len(role):
                 raise HTTPException(status_code=404, detail=f"Category not found")
 
             # Add a role to permission
             await session.execute(insert(models.role_permission).values(
-                [{"role_id": entity_id, "permission_id": role_id} for role_id in role_ids])
-            )
+                [
+                    {
+                        "role_id": role.id,
+                        "permission_id": entity_id
+                    } for role in role
+                ]
+            ))
 
             session.add(entity)
             await session.commit()
