@@ -193,7 +193,9 @@ class PermissionService(BaseService):
                 raise HTTPException(status_code=404, detail=f"Category not found")
 
             # Add a role to permission
-            entity.role.extend(role)
+            await session.execute(insert(models.role_permission).values(
+                [{"role_id": entity_id, "permission_id": role_id} for role_id in role_ids])
+            )
 
             session.add(entity)
             await session.commit()
