@@ -22,7 +22,8 @@ class ComplainCreate(BaseModel):
                 "title": "title",
                 "description": "description",
                 "image": "image",
-                "rate": 5
+                "rate": 5,
+                "action_date": "2021-07-05T14:08:15"
             }
         }
 
@@ -34,3 +35,4 @@ class ComplainUpdate(ComplainCreate):
     description: Optional[str] = Field(None, max_length=255)
     image: Optional[str] = Field(None)
     rate: Optional[int] = Field(None, ge=0, lt=5)
+    action_date: Optional[datetime] = Field(None)
