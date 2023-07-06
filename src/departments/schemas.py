@@ -10,7 +10,8 @@ class DepartmentCreate(BaseModel):
     phone: Optional[str] = Field(None, max_length=255)
     phone_number: list[str] = Field(None, max_length=255)
     address: str = Field(None, max_length=255)
-    district_id: int
+    city_id: int
+    district_id: Optional[int]
 
     class Config:
         orm_mode = True
@@ -22,6 +23,7 @@ class DepartmentCreate(BaseModel):
                 "phone": "+998712000000",
                 "phone_number": ["+998712000000", "+998712000001"],
                 "address": "Toshkent shahar, Yunusobod tumani, Yunusobod ko'chasi, 1-uy",
+                "city_id": 1,
                 "district_id": 1
             }
         }
@@ -34,4 +36,4 @@ class DepartmentUpdate(DepartmentCreate):
     phone: Optional[str] = Field(None, max_length=255)
     phone_number: list[str] = Field(None, max_length=255)
     address: Optional[str] = Field(None, max_length=255)
-    district_id: Optional[int]
+    city_id: Optional[int]

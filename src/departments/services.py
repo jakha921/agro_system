@@ -15,8 +15,7 @@ class DepartmentService(BaseService):
         return "Department"
 
     def get_addition_entity_name(self):
-        return joinedload(models.Department.district).joinedload(models.District.city).joinedload(
-            models.City.region).joinedload(models.Region.country)
+        return joinedload(models.Department.city).joinedload(models.City.region).joinedload(models.Region.country)
 
     async def get_entities(self, session: AsyncSession, offset: int = None, limit: int = None, search: str = None):
         """
@@ -98,6 +97,10 @@ class DepartmentService(BaseService):
             # if in keys of model exists {some_name}_id then joined load model name for get module.
             if self.get_addition_entity_name():
                 query = query.options(self.get_addition_entity_name())
+
+            # join district if exists
+            if self.model.district_id:
+                query = query.options(joinedload(models.Department.district))
 
             query = query.where(self.model.id == entity_id)
             entity = (await session.execute(query)).scalars().first()

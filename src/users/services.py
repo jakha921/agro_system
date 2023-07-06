@@ -19,6 +19,10 @@ class UserService(BaseService):
     def get_entity_name(self):
         return "User"
 
+    def get_addition_entity_name(self):
+        return joinedload(self.model.city).joinedload(
+            models.City.region).joinedload(models.Region.country)
+
     async def get_entities(self, session: AsyncSession, offset: int = None, limit: int = None, search: str = None):
         """
         Get all entities except password field
@@ -27,11 +31,13 @@ class UserService(BaseService):
             query = select(self.model)
             length_query = select(func.count(self.model.id)).where(self.model.deleted_at == None)
 
-            # join district, city, region, country
-            query = query.options(
-                joinedload(self.model.district).joinedload(models.District.city).
-                joinedload(models.City.region).joinedload(models.Region.country)
-            )
+            if self.get_addition_entity_name():
+                query = query.options(self.get_addition_entity_name())
+
+            # join district if exists
+            if self.model.district_id:
+                print("district_id exists")
+                query = query.options(joinedload(models.Department.district))
 
             # join gender, status, device
             query = query.options(

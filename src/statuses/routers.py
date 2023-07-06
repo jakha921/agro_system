@@ -42,7 +42,7 @@ async def update_status(status_id: int, status: schemas.StatusUpdate,
     return await status_service.update_entity(status_id, status, session)
 
 
-@router.delete("/{status_id}")
-async def delete_status(status_id: int, session: AsyncSession = Depends(get_async_session),
+@router.delete("/")
+async def delete_status(status_ids: list[int], session: AsyncSession = Depends(get_async_session),
                         current_user: str = Depends(JWTBearer())):
-    return await status_service.delete_entity(status_id, session)
+    return await status_service.delete_entities(status_ids, session)

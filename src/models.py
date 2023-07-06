@@ -48,6 +48,8 @@ class City(Base):
 
     region = relationship("Region", back_populates="cities")
 
+    department = relationship("Department", back_populates="city")
+    users = relationship("User", back_populates="city")
     districts = relationship("District", back_populates="city")
 
     def __repr__(self):
@@ -82,8 +84,10 @@ class Department(Base):
     phone = Column(String(255))
     phone_number = Column(String(255))
     address = Column(String(255))
-    district_id = Column(Integer, ForeignKey('districts.id'))
+    city_id = Column(Integer, ForeignKey('cities.id'), nullable=True)
+    district_id = Column(Integer, ForeignKey('districts.id'), nullable=True)
 
+    city = relationship("City", back_populates="department")
     district = relationship("District", back_populates="department")
 
     def __repr__(self):
@@ -134,7 +138,8 @@ class User(Base):
     address = Column(String(255), nullable=True)
     gender_id = Column(Integer, ForeignKey('genders.id'))
     status_id = Column(Integer, ForeignKey('statuses.id'))
-    district_id = Column(Integer, ForeignKey('districts.id'))
+    city_id = Column(Integer, ForeignKey('cities.id'), nullable=True)
+    district_id = Column(Integer, ForeignKey('districts.id'), nullable=True)
     device_type = Column(Enum('ios', 'android', name="Device"), default='android')
     registration_at = Column(DateTime, default=datetime.utcnow)
     last_login_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -142,6 +147,7 @@ class User(Base):
 
     gender = relationship("Gender", back_populates="users")
     status = relationship("Status", back_populates="users")
+    city = relationship("City", back_populates="users")
     district = relationship("District", back_populates="users")
 
     complain = relationship("Complain", back_populates="users")
@@ -217,6 +223,7 @@ class Complain(Base):
     description = Column(String(255))
     image = Column(String(255))
     rate = Column(Integer, default=0)
+    action_date = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     deleted_at = Column(DateTime, nullable=True)
