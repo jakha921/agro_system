@@ -20,7 +20,7 @@ class UserService(BaseService):
         return "User"
 
     def get_addition_entity_name(self):
-        return joinedload(self.model.city).joinedload(
+        return joinedload(models.User.city).joinedload(
             models.City.region).joinedload(models.Region.country)
 
     async def get_entities(self, session: AsyncSession, offset: int = None, limit: int = None, search: str = None):
@@ -33,11 +33,6 @@ class UserService(BaseService):
 
             if self.get_addition_entity_name():
                 query = query.options(self.get_addition_entity_name())
-
-            # join district if exists
-            if self.model.district_id:
-                print("district_id exists")
-                query = query.options(joinedload(models.Department.district))
 
             # join gender, status, device
             query = query.options(
@@ -109,6 +104,43 @@ class UserService(BaseService):
                 "data": str(e) if str(e) else None
             })
 
+    async def get_entity(self, entity_id: int, session: AsyncSession):
+        """
+        Get entity by id
+        """
+        try:
+            query = select(self.model)
+
+            # if in keys of model exists {some_name}_id then joined load model name for get module.
+            if self.get_addition_entity_name():
+                query = query.options(self.get_addition_entity_name())
+
+            # join district if exists
+            if hasattr(self.model, "district"):
+                query = query.options(joinedload(self.model.district))
+
+            query = query.where(self.model.id == entity_id)
+            entity = (await session.execute(query)).scalars().first()
+
+            if entity is None:
+                raise HTTPException(status_code=404, detail=f"{self.get_entity_name()} not found")
+            return {
+                "status": "success",
+                "detail": f"{self.get_entity_name()} retrieved successfully",
+                "data": entity
+            }
+        except HTTPException as e:
+            raise HTTPException(status_code=404, detail={
+                "status": "error",
+                "detail": e.detail,
+                "data": None
+            })
+        except Exception as e:
+            raise HTTPException(status_code=400, detail={
+                "status": "error",
+                "detail": f"{self.get_entity_name()} not retrieved",
+                "data": str(e) if str(e) else None
+            })
     async def create_entity(self, entity_data, session: AsyncSession):
         """
         Create entity
