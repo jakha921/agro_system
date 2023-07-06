@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, Field
@@ -10,6 +11,7 @@ class ComplainCreate(BaseModel):
     description: str = Field(..., max_length=255)
     image: str = Field(..., max_length=255)
     rate: int = Field(..., ge=0, le=5)
+    complain_date: datetime = Field(...)
 
     class Config:
         orm_mode = True

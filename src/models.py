@@ -223,6 +223,7 @@ class Complain(Base):
     description = Column(String(255))
     image = Column(String(255))
     rate = Column(Integer, default=0)
+    complaint_date = Column(DateTime, default=datetime.utcnow)
     action_date = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
