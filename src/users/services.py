@@ -83,7 +83,7 @@ class UserService(BaseService):
         """
         try:
             query = select(self.model).where(
-                func.lower(self.model.phone) == entity_name.lower(),
+                func.lower(self.model.phone_number) == entity_name.lower(),
             )
             entity = (await session.execute(query)).scalars().first()
             return {
@@ -146,7 +146,7 @@ class UserService(BaseService):
         Create entity
         """
         try:
-            exist_entity = (await self.get_entity_by_phone(entity_data.phone, session))
+            exist_entity = (await self.get_entity_by_phone(entity_data.phone_number, session))
             if exist_entity["status"] == "success" and exist_entity["data"]:
                 raise HTTPException(status_code=400, detail="Phone number already exist")
 
