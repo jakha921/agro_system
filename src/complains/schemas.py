@@ -9,7 +9,7 @@ class ComplainCreate(BaseModel):
     complain_status_id: int = Field(..., gt=0)
     title: str = Field(..., max_length=50, min_length=3)
     description: str = Field(..., max_length=255)
-    image: list[str] = Field(...)
+    image: str = Field(...)
     rate: int = Field(..., ge=0, le=4)
     action_date: datetime = Field(...)
 
@@ -21,7 +21,7 @@ class ComplainCreate(BaseModel):
                 "complain_status_id": 1,
                 "title": "title",
                 "description": "description",
-                "image": ["image1", "image2"],
+                "image": "image",
                 "rate": 3,
                 "action_date": "2021-07-05T14:08:15"
             }

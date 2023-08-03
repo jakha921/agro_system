@@ -2,7 +2,7 @@ import datetime
 
 import boto3
 import magic
-from sqlalchemy.orm import joinedload, defer
+from sqlalchemy.orm import joinedload
 
 from src import models
 from src.base_service.base_service import BaseService
@@ -39,32 +39,27 @@ async def s3_upload(contents: bytes, key: str):
     bucket.put_object(Key=key, Body=contents)
 
 
-async def upload_file(files):
-    urls = []
-    for file in files:
-        if not file:
-            raise HTTPException(status_code=400, detail="No file uploaded")
+async def upload_file(file):
+    if not file:
+        raise HTTPException(status_code=400, detail="No file uploaded")
 
-        contents = await file.read()
-        print("contents")
-        file_size = len(contents)
+    contents = await file.read()
+    file_size = len(contents)
 
-        if not 0 < file_size < 10 * MB:
-            raise HTTPException(status_code=400, detail="File size is too large or too small (0 < file_size < 10 MB)")
+    if not 0 < file_size < 10 * MB:
+        raise HTTPException(status_code=400, detail="File size is too large or too small (0 < file_size < 10 MB)")
 
-        file_type = magic.from_buffer(buffer=contents, mime=True)
-        if file_type not in SUPPORTED_FILE_TYPES:
-            raise HTTPException(status_code=400, detail=f"File type {file_type} is not supported")
+    file_type = magic.from_buffer(buffer=contents, mime=True)
+    if file_type not in SUPPORTED_FILE_TYPES:
+        raise HTTPException(status_code=400, detail=f"File type {file_type} is not supported")
 
-        # save to S3 bucket with photo
-        print("file name is ", file.filename.split(".")[0])
-        file_name = f"{file.filename.split('.')[0]}.{SUPPORTED_FILE_TYPES[file_type]}"
-        await s3_upload(contents=contents, key=file_name)
+    # save to S3 bucket with photo
+    print("file is ", file.filename.split(".")[0])
+    file_name = f"{file.filename.split('.')[0]}.{SUPPORTED_FILE_TYPES[file_type]}"
+    await s3_upload(contents=contents, key=file_name)
 
-        #     get the url of the image
-        url = f"https://{AWS_BUCKET}.s3.amazonaws.com/{file_name}"
-        urls.append(url)
-    return urls
+    #     get the url of the image
+    return f"https://{AWS_BUCKET}.s3.amazonaws.com/{file_name}"
 
 
 # endregion
@@ -107,9 +102,6 @@ class ComplainService(BaseService):
             if offset and limit:
                 query = query.offset((offset - 1) * limit).limit(limit)
 
-            # remove phone numbers
-            query = query.options(defer(self.model.image))
-
             return {
                 "status": "success",
                 "detail": f"{self.get_entity_name()} retrieved successfully",
@@ -138,7 +130,6 @@ class ComplainService(BaseService):
 
             query = query.where(self.model.id == entity_id)
             entity = (await session.execute(query)).scalars().first()
-            entity.image = entity.image.split(',') if entity.image else []
 
             if entity is None:
                 raise HTTPException(status_code=404, detail=f"{self.get_entity_name()} not found")
@@ -166,7 +157,6 @@ class ComplainService(BaseService):
         """
         try:
             entity = self.model(**entity_data.dict())
-            entity.image = str(entity_data.image).replace(' ', '').replace('[', '').replace(']', '').replace("'", '')
             session.add(entity)
             await session.commit()
             return {

@@ -55,7 +55,7 @@ async def delete_complain(complain_id: int, session: AsyncSession = Depends(get_
 
 
 @router.post("/upload/media")
-async def upload_complain_file(file: list[UploadFile] = File(...),
+async def upload_complain_file(file: UploadFile = File(...),
                                current_user: str = Depends(JWTBearer())):
     check_permission("create_complain", current_user)
     return await upload_file(file)
