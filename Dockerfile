@@ -1,4 +1,4 @@
-FROM python:3.10
+FROM python:3.10.9
 
 # Path: /app
 RUN mkdir /app
@@ -6,14 +6,16 @@ RUN mkdir /app
 # change workdir
 WORKDIR /app
 
-# Copy and install Python dependencies
+# copy requirements.txt to /app
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+
+# install requirements.txt
+RUN pip install -r requirements.txt
 
 # copy all files to /app
 COPY . .
 
-RUN chmod a+x *.sh
+# RUN chmod a+x *.sh
 
 # run the alembic migrations
 RUN alembic upgrade head
