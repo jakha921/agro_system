@@ -18,7 +18,16 @@ def create_access_token(user_id: int, is_admin: bool = False, role_id: int = Non
         payload = {
             "iat": datetime.utcnow(),
             "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE),
-            "user_id": user_id
+            "user_id": user_id,
+            "permissions": [
+                "read_user",
+                "update_user",
+                "delete_user",
+                "read_category",
+                "read_right",
+                "read_department",
+                "read_guide",
+            ]
         }
     else:
         payload = {
@@ -27,25 +36,6 @@ def create_access_token(user_id: int, is_admin: bool = False, role_id: int = Non
             "admin_id": user_id,
             "role_id": role_id,
             "permissions": permissions
-        }
-        return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
-
-        # Function to create refresh token
-
-
-def create_refresh_token(user_id: int, is_admin: bool = False, role_id: int = None) -> str:
-    if not is_admin:
-        payload = {
-            "iat": datetime.utcnow(),
-            "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE),
-            "user_id": user_id
-        }
-    else:
-        payload = {
-            "iat": datetime.utcnow(),
-            "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE),
-            "admin_id": user_id,
-            "role_id": role_id
         }
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 

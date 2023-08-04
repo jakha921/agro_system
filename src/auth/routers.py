@@ -1,10 +1,8 @@
-from fastapi import Depends, HTTPException, APIRouter
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends, APIRouter
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth.auth_bearer import JWTBearer
-from src.auth.services import create_access_token, create_refresh_token, decode_jwt, check_permission
+from src.auth.services import create_access_token
 from src.database import get_async_session
 from src.roles.services import RoleService
 from src.users.routers import users_service
@@ -27,26 +25,8 @@ async def login(phone_number: str, password: str, session: AsyncSession = Depend
 
     # Create the access token and refresh token
     access_token = create_access_token(user['data'].id, False)
-    refresh_token = create_refresh_token(user['data'].id, False)
 
-    return {"access_token": access_token, "refresh_token": refresh_token}
-
-
-# Example refresh route
-@router.post("/refresh")
-async def refresh(refresh_token: str):
-    try:
-        payload = decode_jwt(refresh_token)
-        user_id: str = payload.get("user_id", None)
-        if user_id is None:
-            raise HTTPException(status_code=401, detail="Invalid token")
-
-        # Create a new access token
-        new_access_token = create_access_token(user_id)
-
-        return {"access_token": new_access_token}
-    except HTTPException:
-        raise HTTPException(status_code=401, detail="Invalid token")
+    return {"access_token": access_token}
 
 
 # Example login route for admin
@@ -54,13 +34,12 @@ async def refresh(refresh_token: str):
 async def admin_login(email: str, password: str, session: AsyncSession = Depends(get_async_session)):
     # Perform authentication and get the user_id
     admin = await admins_service.get_authenticate_admin(email, password, session)
-    print('user', admin)
+    print('admin token data', admin)
     role = await RoleService.get_role(admin['data'].role_id, session)
     get_role_permissions = await RoleService.get_role_permissions(admin['data'].role_id, session)
 
     # Create the access token and refresh token
     access_token = create_access_token(admin['data'].id, True, admin['data'].role_id, get_role_permissions)
-    refresh_token = create_refresh_token(admin['data'].id, True)
     data = {
         "id": admin['data'].id,
         "name": admin['data'].username,
@@ -68,16 +47,15 @@ async def admin_login(email: str, password: str, session: AsyncSession = Depends
         "role": role['data'],
     }
 
-    return {"access_token": access_token, "refresh_token": refresh_token, "data": data}
-
+    return {"access_token": access_token, "data": data}
 
 # Example protected route
-@router.get("/protected")
-async def protected_route(
-        current_user: str = Depends(JWTBearer())):
-    check_permission("read_guide", current_user)
-    return {
-        "status": "success",
-        "message": "You have access to this resource",
-        "data": decode_jwt(current_user)
-    }
+# @router.get("/protected")
+# async def protected_route(
+#         current_user: str = Depends(JWTBearer())):
+#     check_permission("read_guide", current_user)
+#     return {
+#         "status": "success",
+#         "message": "You have access to this resource",
+#         "data": decode_jwt(current_user)
+#     }
