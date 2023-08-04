@@ -132,7 +132,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True)
     username = Column(String(50), nullable=False)
-    phone_number = Column(String(50), unique=True, nullable=False)
+    phone_number = Column(String(50), nullable=False)
     password = Column(String(255), nullable=False)
     age = Column(Integer, nullable=False)
     address = Column(String(255), nullable=True)

@@ -82,10 +82,12 @@ class UserService(BaseService):
         Get entity by name
         """
         try:
+            # search by phone number and deleted_at is null
             query = select(self.model).where(
-                func.lower(self.model.phone_number) == entity_name.lower(),
+                func.lower(self.model.phone_number) == entity_name.lower(), self.model.deleted_at == None
             )
             entity = (await session.execute(query)).scalars().first()
+            print(entity)
             return {
                 "status": "success",
                 "detail": f"{self.get_entity_name()} retrieved successfully" if entity else f"{self.get_entity_name()} not found",
