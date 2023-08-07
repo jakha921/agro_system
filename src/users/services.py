@@ -4,6 +4,7 @@ from sqlalchemy.orm import defer, joinedload
 
 from src import models
 from src.auth.hashing import hash_password, verify_password
+from src.auth.services import create_access_token
 from src.base_service.base_service import BaseService
 
 from sqlalchemy import or_, func
@@ -13,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException
 
 from src.config import jwt_config
+from src.models import User
 
 
 class UserService(BaseService):
@@ -143,6 +145,7 @@ class UserService(BaseService):
                 "detail": f"{self.get_entity_name()} not retrieved",
                 "data": str(e) if str(e) else None
             })
+
     async def create_entity(self, entity_data, session: AsyncSession):
         """
         Create entity
@@ -151,24 +154,36 @@ class UserService(BaseService):
             exist_entity = (await self.get_entity_by_phone(entity_data.phone_number, session))
             if exist_entity["status"] == "success" and exist_entity["data"]:
                 raise HTTPException(status_code=400, detail="Phone number already exist")
-
+            token_password = entity_data.password
             password = entity_data.password
             print(password)
             hashed_password = hash_password(password, jwt_config.SECRET_KEY)
-            print(hashed_password)
             entity_data.password = hashed_password
-            print(entity_data.password)
             entity = self.model(**entity_data.dict())
             session.add(entity)
+
+            users_service = UserService(User)
+            user = await users_service.get_authenticate_user(entity.phone_number, token_password, session)
+
             await session.commit()
 
             # remove password field
             entity.password = None
 
+            print('phone', entity.phone_number, 'pass', token_password)
+            print('user', user)
+            print('user', user['data'].id)
+
+            # Create the access token and refresh token
+            access_token = create_access_token(user['data'].id, False)
+
             return {
                 "status": "success",
                 "detail": f"{self.get_entity_name()} created successfully",
-                "data": entity
+                "data": {
+                    "user": entity,
+                    "access_token": access_token
+                }
             }
         except HTTPException as e:
             raise HTTPException(status_code=404, detail={
