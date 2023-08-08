@@ -20,8 +20,9 @@ country_service = CountryService(Country)
 
 @router.get("/list")
 async def get_countries_list(session: AsyncSession = Depends(get_async_session),
-                             current_user: str = Depends(JWTBearer())):
-    check_permission("read_guide", current_user)
+                             # current_user: str = Depends(JWTBearer())
+                             ):
+    # check_permission("read_guide", current_user)
     return await country_service.get_countries_by_obj(session)
 
 
