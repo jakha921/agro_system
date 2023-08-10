@@ -119,6 +119,9 @@ class UserService(BaseService):
             if self.get_addition_entity_name():
                 query = query.options(self.get_addition_entity_name())
 
+            if self.model.district_id:
+                query = query.options(joinedload(self.model.district))
+
             # join district if exists
             if hasattr(self.model, "district"):
                 query = query.options(joinedload(self.model.district))
