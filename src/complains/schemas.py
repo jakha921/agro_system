@@ -11,6 +11,8 @@ class ComplainCreate(BaseModel):
     description: str = Field(..., max_length=255)
     image: str = Field(...)
     rate: int = Field(..., ge=0, le=4)
+    action_city_id: int = Field(None, gt=0)
+    action_district_id: int = Field(None, gt=0)
     action_date: datetime = Field(...)
 
     class Config:
@@ -23,7 +25,10 @@ class ComplainCreate(BaseModel):
                 "description": "description",
                 "image": "image",
                 "rate": 3,
+                "action_city_id": 1,
+                "action_district_id": 1,
                 "action_date": "2021-07-05T14:08:15"
+
             }
         }
 

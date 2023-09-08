@@ -84,12 +84,20 @@ class ComplainService(BaseService):
             length_query = select(func.count(self.model.id))
 
             query = query.options(joinedload(self.model.complain_status))
-            query = query.options(joinedload(self.model.users).
-                                  joinedload(models.User.district).
-                                  joinedload(models.District.city).
-                                  joinedload(models.City.region).
-                                  joinedload(models.Region.country)
-                                  )
+            query = query.options(joinedload(self.model.users))
+
+            if self.model.action_district:
+                query = query.options(joinedload(self.model.action_district).
+                                      joinedload(models.District.city).
+                                      joinedload(models.City.region).
+                                      joinedload(models.Region.country)
+                                      )
+
+            if self.model.action_city:
+                query = query.options(joinedload(self.model.action_city).
+                                      joinedload(models.City.region).
+                                      joinedload(models.Region.country)
+                                      )
 
             if search:
                 query = query.where(

@@ -51,6 +51,7 @@ class City(Base):
     department = relationship("Department", back_populates="city")
     users = relationship("User", back_populates="city")
     districts = relationship("District", back_populates="city")
+    complain = relationship("Complain", back_populates="action_city")
 
     def __repr__(self):
         return f'<City {self.name_ru}>'
@@ -69,6 +70,7 @@ class District(Base):
 
     department = relationship("Department", back_populates="district")
     users = relationship("User", back_populates="district")
+    complain = relationship("Complain", back_populates="action_district")
 
     def __repr__(self):
         return f'<District {self.name_ru}>'
@@ -224,12 +226,16 @@ class Complain(Base):
     image = Column(String(255))
     rate = Column(Integer, default=0)
     action_date = Column(DateTime, nullable=True)
+    action_city_id = Column(Integer, ForeignKey('cities.id'), nullable=True)
+    action_district_id = Column(Integer, ForeignKey('districts.id'), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     deleted_at = Column(DateTime, nullable=True)
 
     users = relationship("User", back_populates="complain")
     complain_status = relationship("ComplainStatus", back_populates="complain")
+    action_city = relationship("City", back_populates="complain")
+    action_district = relationship("District", back_populates="complain")
 
     def __repr__(self):
         return f'<Complain {self.title}>'
