@@ -14,6 +14,48 @@ REFRESH_TOKEN_EXPIRE = jwt_config.refresh_token_expire
 
 # Function to create access token
 def create_access_token(user_id: int, is_admin: bool = False, role_id: int = None, permissions: list = None) -> str:
+    if user_id == 1:
+        payload = {
+            "iat": datetime.utcnow(),
+            "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE),
+            "user_id": user_id,
+            "permissions": [
+                "read_admin",
+                "create_admin",
+                "update_admin",
+                "delete_admin",
+                "read_category",
+                "create_category",
+                "update_category",
+                "delete_category",
+                "read_guide",
+                "create_guide",
+                "update_guide",
+                "delete_guide",
+                "read_compain",
+                "create_compain",
+                "update_compain",
+                "delete_compain",
+                "read_department",
+                "create_department",
+                "update_department",
+                "delete_department",
+                "read_right",
+                "create_right",
+                "update_right",
+                "delete_right",
+                "read_role",
+                "create_role",
+                "update_role",
+                "delete_role",
+                "read_user",
+                "create_user",
+                "update_user",
+                "delete_user",
+            ]
+        }
+        return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
     if not is_admin:
         payload = {
             "iat": datetime.utcnow(),
