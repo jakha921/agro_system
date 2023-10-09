@@ -7,9 +7,9 @@ class CategoryCreate(BaseModel):
     title_ru: str = Field(..., max_length=255)
     title_en: Optional[str] = Field(None, max_length=255)
     title_uz: Optional[str] = Field(None, max_length=255)
-    short_description_ru: str = Field(..., max_length=255)
-    short_description_en: Optional[str] = Field(None, max_length=255)
-    short_description_uz: Optional[str] = Field(None, max_length=255)
+    short_description_ru: str = Field(..., max_length=4000)
+    short_description_en: Optional[str] = Field(None, max_length=4000)
+    short_description_uz: Optional[str] = Field(None, max_length=4000)
 
     class Config:
         orm_mode = True
@@ -27,4 +27,4 @@ class CategoryCreate(BaseModel):
 
 class CategoryUpdate(CategoryCreate):
     title_ru: Optional[str] = Field(None, max_length=255)
-    short_description_ru: Optional[str] = Field(None, max_length=255)
+    short_description_ru: Optional[str] = Field(None, max_length=4000)
