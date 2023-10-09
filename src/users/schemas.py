@@ -10,9 +10,9 @@ class DeviceType(str, Enum):
 
 
 class UserCreate(BaseModel):
-    username: str = Field(..., max_length=50)
-    phone_number: str = Field(..., max_length=50)
-    password: str = Field(..., max_length=50)
+    username: str = Field(..., max_length=255)
+    phone_number: str = Field(..., max_length=255)
+    password: str = Field(..., max_length=255)
     age: int = Field(..., gt=0)
     address: str = Field(None, max_length=255)
     gender_id: int = Field(..., gt=0)
@@ -40,9 +40,9 @@ class UserCreate(BaseModel):
 
 class UserUpdate(UserCreate):
     # set all fields as optional
-    username: Optional[str] = Field(None, max_length=50)
-    phone_number: Optional[str] = Field(None, max_length=50)
-    password: Optional[str] = Field(None, max_length=50)
+    username: Optional[str] = Field(None, max_length=255)
+    phone_number: Optional[str] = Field(None, max_length=255)
+    password: Optional[str] = Field(None, max_length=255)
     age: Optional[int] = Field(None, gt=0)
     address: Optional[str] = Field(None, max_length=255)
     city_id: Optional[int] = Field(None, gt=0)

@@ -4,9 +4,9 @@ from pydantic import BaseModel, Field
 
 
 class CategoryCreate(BaseModel):
-    title_ru: str = Field(..., max_length=50)
-    title_en: Optional[str] = Field(None, max_length=50)
-    title_uz: Optional[str] = Field(None, max_length=50)
+    title_ru: str = Field(..., max_length=255)
+    title_en: Optional[str] = Field(None, max_length=255)
+    title_uz: Optional[str] = Field(None, max_length=255)
     short_description_ru: str = Field(..., max_length=255)
     short_description_en: Optional[str] = Field(None, max_length=255)
     short_description_uz: Optional[str] = Field(None, max_length=255)
@@ -26,5 +26,5 @@ class CategoryCreate(BaseModel):
 
 
 class CategoryUpdate(CategoryCreate):
-    title_ru: Optional[str] = Field(None, max_length=50)
+    title_ru: Optional[str] = Field(None, max_length=255)
     short_description_ru: Optional[str] = Field(None, max_length=255)

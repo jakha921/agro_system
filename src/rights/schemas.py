@@ -5,12 +5,12 @@ from pydantic import BaseModel, Field
 
 class RightCreate(BaseModel):
     category_ids: list[int] = Field(..., min_items=1)
-    title_ru: str = Field(..., max_length=50)
-    title_en: Optional[str] = Field(None, max_length=50)
-    title_uz: Optional[str] = Field(None, max_length=50)
-    short_description_ru: str = Field(..., max_length=255)
-    short_description_en: Optional[str] = Field(None, max_length=255)
-    short_description_uz: Optional[str] = Field(None, max_length=255)
+    title_ru: str = Field(..., max_length=255)
+    title_en: Optional[str] = Field(None, max_length=255)
+    title_uz: Optional[str] = Field(None, max_length=255)
+    short_description_ru: str = Field(..., max_length=4000)
+    short_description_en: Optional[str] = Field(None, max_length=4000)
+    short_description_uz: Optional[str] = Field(None, max_length=4000)
 
     class Config:
         orm_mode = True
@@ -29,5 +29,5 @@ class RightCreate(BaseModel):
 
 class RightUpdate(RightCreate):
     category_ids: Optional[list[int]] = Field(None, min_items=1)
-    title_ru: Optional[str] = Field(None, max_length=50)
-    short_description_ru: Optional[str] = Field(None, max_length=255)
+    title_ru: Optional[str] = Field(None, max_length=255)
+    short_description_ru: Optional[str] = Field(None, max_length=4000)
