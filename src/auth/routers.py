@@ -26,7 +26,11 @@ async def login(phone_number: str, password: str, session: AsyncSession = Depend
     # Create the access token and refresh token
     access_token = create_access_token(user['data'].id, False)
 
-    return {"access_token": access_token}
+    return {"access_token": access_token, 'user': {
+        "id": user['data'].id,
+        "name": user['data'].username,
+        "phone_number": user['data'].phone_number
+    }}
 
 
 # Example login route for admin
