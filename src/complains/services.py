@@ -110,6 +110,8 @@ class ComplainService(BaseService):
             if offset and limit:
                 query = query.offset((offset - 1) * limit).limit(limit)
 
+            query = query.order_by(self.model.created_at.desc())
+
             return {
                 "status": "success",
                 "detail": f"{self.get_entity_name()} retrieved successfully",
