@@ -18,8 +18,7 @@ gender_service = GenderService(Gender)
 
 
 @router.get("/")
-async def get_genders(session: AsyncSession = Depends(get_async_session),
-                      current_user: str = Depends(JWTBearer())):
+async def get_genders(session: AsyncSession = Depends(get_async_session)):
     return await gender_service.get_entities(session)
 
 
