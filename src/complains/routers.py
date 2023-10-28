@@ -18,11 +18,11 @@ complains_service = ComplainService(Complain)
 
 
 @router.get("/")
-async def get_complains(page: int = None, limit: int = None, search: str = None,
+async def get_complains(page: int = None, limit: int = None, search: str = None, user_id: int = None,
                         session: AsyncSession = Depends(get_async_session),
                         current_user: str = Depends(JWTBearer())):
     check_permission("read_complain", current_user)
-    return await complains_service.get_entities(session, page, limit, search)
+    return await complains_service.get_entities(session, page, limit, search, user_id)
 
 
 @router.post("/")

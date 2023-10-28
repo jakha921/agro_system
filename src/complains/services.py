@@ -74,7 +74,8 @@ class ComplainService(BaseService):
         """
         pass
 
-    async def get_entities(self, session: AsyncSession, offset: int = None, limit: int = None, search: str = None):
+    async def get_entities(self, session: AsyncSession, offset: int = None, limit: int = None, search: str = None,
+                           user_id: int = None):
         """
         Get all entities
         """
@@ -106,6 +107,10 @@ class ComplainService(BaseService):
                         func.lower(self.model.description).contains(search.lower())
                     )
                 )
+
+            if user_id:
+                query = query.where(self.model.user_id == user_id)
+                length_query = length_query.where(self.model.user_id == user_id)
 
             if offset and limit:
                 query = query.offset((offset - 1) * limit).limit(limit)
