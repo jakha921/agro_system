@@ -10,6 +10,7 @@ from src.base_service.base_service import BaseService
 from sqlalchemy import or_, func
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from fastapi import HTTPException
 
@@ -118,6 +119,10 @@ class UserService(BaseService):
             # if in keys of model exists {some_name}_id then joined load model name for get module.
             if self.get_addition_entity_name():
                 query = query.options(self.get_addition_entity_name())
+                query = query.options(
+                    selectinload(self.model.gender),
+                    selectinload(self.model.status)
+                )
 
             if self.model.district_id:
                 query = query.options(joinedload(self.model.district))
@@ -127,6 +132,10 @@ class UserService(BaseService):
                 query = query.options(joinedload(self.model.district))
 
             query = query.where(self.model.id == entity_id)
+
+            # remove password
+            query = query.options(defer(self.model.password))
+
             entity = (await session.execute(query)).scalars().first()
 
             if entity is None:
