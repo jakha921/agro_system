@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Depends
-from typing import Optional
+from fastapi import APIRouter, Depends, Query
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,11 +18,14 @@ categories_service = CategoryService(Category)
 
 
 @router.get("/")
-async def get_categories(page: int = None, limit: int = None, search: str = None,
+async def get_categories(page: int = None,
+                         limit: int = None,
+                         search: str = None,
+                         lang: str = Query(default="ru", choices=["ru", "en", "uz"]),
                          session: AsyncSession = Depends(get_async_session),
                          current_user: str = Depends(JWTBearer())):
     check_permission("read_category", current_user)
-    return await categories_service.get_entities(session, page, limit, search)
+    return await categories_service.get_entities(session, page, limit, search, lang)
 
 
 @router.post("/")

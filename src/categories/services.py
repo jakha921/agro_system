@@ -11,7 +11,8 @@ class CategoryService(BaseService):
     def get_entity_name(self):
         return "Category"
 
-    async def get_entities(self, session: AsyncSession, offset: int = None, limit: int = None, search: str = None):
+    async def get_entities(self, session: AsyncSession, offset: int = None, limit: int = None, search: str = None,
+                           lang: str = "ru"):
         """
         Get all entities
         """
@@ -37,6 +38,13 @@ class CategoryService(BaseService):
                 )
             if offset and limit:
                 query = query.offset((offset - 1) * limit).limit(limit)
+
+            if lang == "ru":
+                query = query.order_by(self.model.title_ru)
+            elif lang == "en":
+                query = query.order_by(self.model.title_en)
+            elif lang == "uz":
+                query = query.order_by(self.model.title_uz)
 
             return {
                 "status": "success",
@@ -119,7 +127,8 @@ class CategoryService(BaseService):
         """
         try:
             get_entity = await self.get_entity_by_name(entity_data.title_ru, session)
-            if get_entity["status"] == "success" and get_entity["data"] is not None and get_entity["data"].id != entity_id:
+            if get_entity["status"] == "success" and get_entity["data"] is not None and get_entity[
+                "data"].id != entity_id:
                 raise HTTPException(status_code=400, detail=f"{self.get_entity_name()} already exists")
 
             query = select(self.model).where(self.model.id == entity_id)
