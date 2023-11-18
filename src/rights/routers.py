@@ -19,11 +19,11 @@ rights_service = RightService(Right)
 
 
 @router.get("/")
-async def get_rights(page: int = None, limit: int = None, search: str = None,
+async def get_rights(page: int = None, limit: int = None, search: str = None, lang: str = 'ru',
                      session: AsyncSession = Depends(get_async_session),
                      current_user: str = Depends(JWTBearer())):
     check_permission("read_right", current_user)
-    return await rights_service.get_entities(session, page, limit, search)
+    return await rights_service.get_entities(session, page, limit, search, lang)
 
 
 @router.post("/")

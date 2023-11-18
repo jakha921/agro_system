@@ -1,5 +1,3 @@
-import asyncio
-
 from sqlalchemy.orm import joinedload
 
 from src import models
@@ -16,7 +14,8 @@ class RightService(BaseService):
     def get_entity_name(self):
         return "Right"
 
-    async def get_entities(self, session: AsyncSession, offset: int = None, limit: int = None, search: str = None):
+    async def get_entities(self, session: AsyncSession, offset: int = None, limit: int = None, search: str = None,
+                           lang='ru'):
         """
         Get all entities
         """
@@ -41,12 +40,32 @@ class RightService(BaseService):
             if offset and limit:
                 query = query.offset((offset - 1) * limit).limit(limit)
 
+            # Sort by title column by chosen language
+            query = query.order_by(getattr(self.model, f"title_{lang}").asc())
+
+            result = (await session.execute(query)).unique().scalars().all()
+
+            items = [
+                {
+                    "id": item.id,
+                    "title": getattr(item, f"title_{lang}"),
+                    "short_description": getattr(item, f"short_description_{lang}"),
+                    "categories": [
+                        {
+                            "id": category.id,
+                            "title": getattr(category, f"title_{lang}"),
+                            "short_description": getattr(category, f"short_description_{lang}"),
+                        } for category in item.categories
+                    ]
+                } for item in result
+            ]
+
             return {
                 "status": "success",
                 "detail": f"{self.get_entity_name()} retrieved successfully",
                 "data": {
                     "total": (await session.execute(length_query)).scalar(),
-                    "items": (await session.execute(query)).unique().scalars().all()
+                    "items": items
                 }
             }
         except Exception as e:
@@ -171,7 +190,8 @@ class RightService(BaseService):
         """
         try:
             get_entity = await self.get_entity_by_name(entity_data.title_ru, session)
-            if get_entity["status"] == "success" and get_entity["data"] is not None and get_entity["data"].id != entity_id:
+            if get_entity["status"] == "success" and get_entity["data"] is not None and get_entity[
+                "data"].id != entity_id:
                 raise HTTPException(status_code=400, detail=f"{self.get_entity_name()} already exists")
 
             query = select(self.model).where(self.model.id == entity_id)
