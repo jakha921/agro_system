@@ -39,19 +39,25 @@ class CategoryService(BaseService):
             if offset and limit:
                 query = query.offset((offset - 1) * limit).limit(limit)
 
-            if lang == "ru":
-                query = query.order_by(self.model.title_ru)
-            elif lang == "en":
-                query = query.order_by(self.model.title_en)
-            elif lang == "uz":
-                query = query.order_by(self.model.title_uz)
+            # Sort by title column by chosen language
+            query = query.order_by(getattr(self.model, f"title_{lang}").asc())
+
+            result = (await session.execute(query)).unique().scalars().all()
+
+            items = [
+                {
+                    "id": item.id,
+                    "title": getattr(item, f"title_{lang}"),
+                    "short_description": getattr(item, f"short_description_{lang}"),
+                } for item in result
+            ]
 
             return {
                 "status": "success",
                 "detail": f"{self.get_entity_name()} retrieved successfully",
                 "data": {
                     "total": (await session.execute(length_query)).scalar(),
-                    "items": (await session.execute(query)).scalars().all()
+                    "items": items
                 }
             }
         except Exception as e:
