@@ -71,7 +71,8 @@ def create_access_token(user_id: int, is_admin: bool = False, role_id: int = Non
                 "read_guide",
                 "create_complain",
                 "read_complain",
-                "update_complain"
+                "update_complain",
+                "delete_complain"
             ]
         }
     else:

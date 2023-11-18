@@ -112,6 +112,8 @@ class ComplainService(BaseService):
                 query = query.where(self.model.user_id == user_id)
                 length_query = length_query.where(self.model.user_id == user_id)
 
+            query = query.where(self.model.deleted_at.is_(None))
+
             if offset and limit:
                 query = query.offset((offset - 1) * limit).limit(limit)
 

@@ -289,7 +289,7 @@ class UserService(BaseService):
                 self.model.phone_number == phone_number, self.model.deleted_at == None)
             user = (await session.execute(query)).scalars().first()
             if user is None:
-                raise HTTPException(status_code=404, detail=f"{self.get_entity_name()} not found")
+                raise HTTPException(status_code=404, detail="Incorrect number")
             if not verify_password(password, jwt_config.SECRET_KEY, user.password):
                 raise HTTPException(status_code=400, detail=f"{self.get_entity_name()} password is incorrect")
             return {
