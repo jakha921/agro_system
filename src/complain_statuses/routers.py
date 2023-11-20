@@ -19,8 +19,9 @@ complain_status_service = ComplainStatusService(ComplainStatus)
 
 @router.get("/")
 async def get_complain_statuses(session: AsyncSession = Depends(get_async_session),
+                                lang: str = None,
                                 current_user: str = Depends(JWTBearer())):
-    return await complain_status_service.get_entities(session)
+    return await complain_status_service.get_entities(session, lang=lang)
 
 
 @router.post("/")

@@ -19,9 +19,10 @@ status_service = StatusService(Status)
 
 @router.get("/")
 async def get_statuses(session: AsyncSession = Depends(get_async_session),
-                       # current_user: str = Depends(JWTBearer())
+                       lang: str = None
+                       # current_user: str = Depends(JWTBearer()),
                        ):
-    return await status_service.get_entities(session)
+    return await status_service.get_entities(session, lang=lang)
 
 
 @router.post("/")

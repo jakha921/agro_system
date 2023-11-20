@@ -21,7 +21,7 @@ categories_service = CategoryService(Category)
 async def get_categories(page: int = None,
                          limit: int = None,
                          search: str = None,
-                         lang: str = Query(default="ru", choices=["ru", "en", "uz"]),
+                         lang: str = Query(choices=["ru", "en", "uz"]),
                          session: AsyncSession = Depends(get_async_session),
                          current_user: str = Depends(JWTBearer())):
     check_permission("read_category", current_user)

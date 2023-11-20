@@ -12,7 +12,7 @@ class CategoryService(BaseService):
         return "Category"
 
     async def get_entities(self, session: AsyncSession, offset: int = None, limit: int = None, search: str = None,
-                           lang: str = "ru"):
+                           lang: str = None):
         """
         Get all entities
         """
@@ -40,24 +40,26 @@ class CategoryService(BaseService):
                 query = query.offset((offset - 1) * limit).limit(limit)
 
             # Sort by title column by chosen language
-            query = query.order_by(getattr(self.model, f"title_{lang}").asc())
+            if lang:
+                query = query.order_by(getattr(self.model, f"title_{lang}").asc())
 
             result = (await session.execute(query)).unique().scalars().all()
 
-            items = [
-                {
-                    "id": item.id,
-                    "title": getattr(item, f"title_{lang}"),
-                    "short_description": getattr(item, f"short_description_{lang}"),
-                } for item in result
-            ]
+            if lang:
+                result = [
+                    {
+                        "id": item.id,
+                        "title": getattr(item, f"title_{lang}"),
+                        "short_description": getattr(item, f"short_description_{lang}"),
+                    } for item in result
+                ]
 
             return {
                 "status": "success",
                 "detail": f"{self.get_entity_name()} retrieved successfully",
                 "data": {
                     "total": (await session.execute(length_query)).scalar(),
-                    "items": items
+                    "items": result
                 }
             }
         except Exception as e:
