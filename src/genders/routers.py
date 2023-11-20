@@ -18,8 +18,8 @@ gender_service = GenderService(Gender)
 
 
 @router.get("/")
-async def get_genders(session: AsyncSession = Depends(get_async_session)):
-    return await gender_service.get_entities(session)
+async def get_genders(session: AsyncSession = Depends(get_async_session), lang: Optional[str] = None):
+    return await gender_service.get_entities(session, lang=lang)
 
 
 @router.post("/")
