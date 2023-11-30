@@ -58,19 +58,23 @@ async def admin_login(email: str, password: str, session: AsyncSession = Depends
 async def get_phone_number(phone_number: str, lang: str = None, session: AsyncSession = Depends(get_async_session)):
     is_exist_phone = await users_service.is_exist_phone(phone_number, session)
     if is_exist_phone:
+        is_registered = True
         if lang == 'ru':
-            return {"message": "Пользователь с таким номером телефона уже существует"}
+            msg = "Пользователь с таким номером телефона уже существует"
         elif lang == 'en':
-            return {"message": "User with this phone number already exists"}
+            msg = "User with this phone number already exists"
         else:
-            return {"message": "Foydalanuvchi bunday telefon raqami bilan mavjud"}
+            msg = "Foydalanuvchi bunday telefon raqami bilan mavjud"
     else:
+        is_registered = False
         if lang == 'ru':
-            return {"message": "Пользователь с таким номером телефона не существует"}
+            msg = "Пользователь с таким номером телефона не существует"
         elif lang == 'en':
-            return {"message": "User with this phone number does not exist"}
+            msg = "User with this phone number does not exist"
         else:
-            return {"message": "Foydalanuvchi bunday telefon raqami mavjud emas"}
+            msg = "Foydalanuvchi bunday telefon raqami mavjud emas"
+
+    return {"is_registered": is_registered, "message": msg}
 
 # Example protected route
 # @router.get("/protected")
