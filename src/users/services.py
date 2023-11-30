@@ -309,3 +309,11 @@ class UserService(BaseService):
                 "detail": f"{self.get_entity_name()} not authenticated",
                 "data": str(e) if str(e) else None
             })
+
+    async def is_exist_phone(self, phone_number: str, session: AsyncSession):
+        query = select(self.model).where(
+            self.model.phone_number == phone_number, self.model.deleted_at == None)
+        user = (await session.execute(query)).one_or_none()
+        if user is None:
+            return False
+        return True
